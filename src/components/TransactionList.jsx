@@ -1,0 +1,234 @@
+import React, { useState, useEffect } from 'react'
+import { useTransactions } from '../hooks/useTransactions'
+import { formatRupiah, formatDate, getMonthKey } from '../utils/formatters'
+import { Trash2, Filter, Calendar, X, Landmark, HelpCircle, Utensils, Car, BookOpen, Wifi, Gamepad2, Flame, PiggyBank, Wallet, PlusCircle } from 'lucide-react'
+
+// Simple map to render Lucide Icons dynamically from database strings
+const IconMap = {
+  Utensils: Utensils,
+  Car: Car,
+  BookOpen: BookOpen,
+  Wifi: Wifi,
+  Gamepad2: Gamepad2,
+  Flame: Flame,
+  PiggyBank: PiggyBank,
+  Wallet: Wallet,
+  PlusCircle: PlusCircle
+}
+
+export default function TransactionList() {
+  const { transactions, categories, deleteTransaction, refetchTransactions, loading } = useTransactions()
+
+  const [monthFilter, setMonthFilter] = useState(getMonthKey()) // Default: Current Month
+  const [categoryFilter, setCategoryFilter] = useState('ALL')
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null)
+
+  // Trigger refetch whenever filters change
+  useEffect(() => {
+    const filters = {}
+    if (monthFilter) filters.monthKey = monthFilter
+    if (categoryFilter !== 'ALL') filters.categoryId = categoryFilter
+
+    refetchTransactions(filters)
+  }, [monthFilter, categoryFilter, refetchTransactions])
+
+  const handleDelete = async (id) => {
+    const { success } = await deleteTransaction(id)
+    if (success) {
+      setDeleteConfirmId(null)
+    }
+  }
+
+  // Generate the last 6 months for the filter dropdown
+  const getFilterMonths = () => {
+    const months = []
+    const date = new Date()
+    for (let i = 0; i < 6; i++) {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const label = date.toLocaleString('en-US', { month: 'long', year: 'numeric' })
+      months.push({ value: `${year}-${month}`, label })
+      date.setMonth(date.getMonth() - 1)
+    }
+    return months
+  }
+
+  const filterMonths = getFilterMonths()
+
+  return (
+    <div className="flex flex-col gap-4 text-left select-none">
+      
+      {/* Dynamic Filter Controls Card */}
+      <div className="glass-panel rounded-2xl p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <h3 className="text-base font-bold text-app-text-primary flex items-center gap-2">
+            <Filter size={18} className="text-purple-400" />
+            <span>Filter Transactions</span>
+          </h3>
+          {(monthFilter !== getMonthKey() || categoryFilter !== 'ALL') && (
+            <button
+              onClick={() => {
+                setMonthFilter(getMonthKey())
+                setCategoryFilter('ALL')
+              }}
+              className="text-xs font-semibold text-purple-600 hover:text-purple-500 flex items-center gap-1 hover:cursor-pointer"
+            >
+              <X size={14} />
+              <span>Reset Filters</span>
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {/* Month Selector Filter */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold text-app-text-secondary uppercase tracking-wider flex items-center gap-1">
+              <Calendar size={12} />
+              <span>Select Month</span>
+            </label>
+            <select
+              value={monthFilter}
+              onChange={(e) => setMonthFilter(e.target.value)}
+              className="w-full py-2.5 px-3 bg-app-bg-input text-app-text-primary border border-app-border outline-none focus:border-purple-500 rounded-xl transition-all text-xs font-semibold cursor-pointer"
+            >
+              {filterMonths.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Category Selector Filter */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold text-app-text-secondary uppercase tracking-wider flex items-center gap-1">
+              <PlusCircle size={12} className="text-app-text-secondary" />
+              <span>Select Category</span>
+            </label>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="w-full py-2.5 px-3 bg-app-bg-input text-app-text-primary border border-app-border outline-none focus:border-purple-500 rounded-xl transition-all text-xs font-semibold cursor-pointer"
+            >
+              <option value="ALL">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  [{cat.type.toUpperCase()}] {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Transactions Table Log */}
+      <div className="glass-panel rounded-2xl overflow-hidden">
+        
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16 text-app-text-secondary gap-2">
+            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm font-semibold tracking-wide">Syncing with ledger...</span>
+          </div>
+        ) : transactions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="p-4 bg-app-bg-input rounded-full text-app-text-secondary/60 mb-3">
+              <Landmark size={40} />
+            </div>
+            <h4 className="text-base font-bold text-app-text-primary mb-1">No transactions found</h4>
+            <p className="text-xs text-app-text-secondary max-w-xs font-medium">
+              We couldn't find any financial entries for the selected month or category. Try modifying your filters!
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-app-border max-h-[480px] overflow-y-auto">
+            {transactions.map((tx) => {
+              const DynamicIcon = IconMap[tx.categories?.icon] || HelpCircle
+              const isExpense = tx.type === 'expense'
+
+              return (
+                <div
+                  key={tx.id}
+                  className="relative overflow-hidden flex items-center justify-between p-4 hover:bg-app-bg-input-hover/30 transition-colors gap-3"
+                >
+                  {/* Premium absolute row overlay for delete confirmations */}
+                  {deleteConfirmId === tx.id && (
+                    <div className="absolute inset-0 bg-app-card-bg/95 backdrop-blur-md flex items-center justify-between px-4 py-2 z-10 animate-fade-in border border-rose-500/20 rounded-xl">
+                      <span className="text-xs font-bold text-rose-500 dark:text-rose-400">
+                        Delete this record?
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleDelete(tx.id)}
+                          className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[10px] sm:text-xs font-bold transition-all shadow shadow-rose-600/10 cursor-pointer active:translate-y-0.5"
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(null)}
+                          className="px-3 py-1.5 bg-app-bg-input hover:bg-app-bg-input-hover border border-app-border text-app-text-primary rounded-lg text-[10px] sm:text-xs font-bold transition-all cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Left Section: Category Icon & Metadata */}
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div
+                      className="p-3 rounded-xl shrink-0 flex items-center justify-center"
+                      style={{
+                        backgroundColor: `${tx.categories?.color || '#6B7280'}20`,
+                        color: tx.categories?.color || '#6B7280',
+                      }}
+                    >
+                      <DynamicIcon size={20} />
+                    </div>
+
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-semibold text-app-text-primary truncate">
+                        {tx.description}
+                      </h4>
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-app-text-secondary font-medium">
+                        <span>{tx.categories?.name || 'Uncategorized'}</span>
+                        <span className="text-app-text-secondary/40 font-bold">•</span>
+                        <span>{formatDate(tx.date)}</span>
+                      </div>
+                      {tx.notes && (
+                        <p className="text-[11px] text-app-text-secondary/80 font-medium mt-1 border-l-2 border-app-border pl-1.5 truncate max-w-[200px] md:max-w-sm">
+                          {tx.notes}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Section: Amount & Deletion */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span
+                      className={`text-sm font-bold tracking-tight ${
+                        isExpense ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'
+                      }`}
+                    >
+                      {isExpense ? '-' : '+'}{formatRupiah(tx.amount)}
+                    </span>
+
+                    {/* Delete entry trigger button */}
+                    <button
+                      onClick={() => setDeleteConfirmId(tx.id)}
+                      className="text-app-text-secondary hover:text-rose-500 hover:bg-app-bg-input-hover p-1.5 rounded-lg transition-colors hover:cursor-pointer"
+                      title="Delete log"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+    </div>
+  )
+}

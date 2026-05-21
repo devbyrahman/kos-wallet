@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/* 
+  KOS WALLET DESIGN SYSTEM (Tailwind CSS v4.0)
+  Aesthetic: Premium, high-contrast, modern Fintech styled for students.
+  Uses Inter and Outfit Google Fonts for high-end typography.
+*/
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  
+  /* Screen Breakpoints */
+  --breakpoint-xs: 480px;
+  
+  /* Custom modern color extensions */
+  --color-brand-primary: #8b5cf6;    /* Violet */
+  --color-brand-secondary: #06b6d4;  /* Cyan */
+  --color-brand-accent: #f43f5e;     /* Rose */
+  --color-kos-bg-light: #f8fafc;
+  --color-kos-bg-dark: #0b0f19;
+
+  /* Theme-aware semantic variables */
+  --color-app-bg: var(--bg-app);
+  --color-app-text-primary: var(--text-primary);
+  --color-app-text-secondary: var(--text-secondary);
+  --color-app-border: var(--border-color);
+  --color-app-card-bg: var(--card-bg);
+  --color-app-card-border: var(--card-border);
+  
+  /* Form Input semantic extensions */
+  --color-app-bg-input: var(--bg-input);
+  --color-app-border-input: var(--border-input);
+  --color-app-bg-input-hover: var(--bg-input-hover);
+  --color-app-text-input: var(--text-input);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --bg-app: var(--color-kos-bg-light);
+    --text-primary: #0f172a;       /* Slate-900 */
+    --text-secondary: #475569;     /* Slate-600 */
+    --border-color: #cbd5e1;       /* Slate-300 */
+    --card-bg: rgba(255, 255, 255, 0.85); /* Highly opaque white for solid text contrast */
+    --card-border: rgba(203, 213, 225, 0.6); /* Solid slate border boundary */
+    
+    /* Semantic variables for inputs & controls */
+    --bg-input: rgba(241, 245, 249, 0.7); /* Soft light grey slate */
+    --border-input: #cbd5e1;               /* Slate-300 */
+    --text-input: #0f172a;                 /* Slate-900 */
+    --bg-input-hover: rgba(226, 232, 240, 0.85); /* Slightly darker slate on hover */
+  }
+
+  :root.dark {
+    color-scheme: dark;
+    --bg-app: var(--color-kos-bg-dark);
+    --text-primary: #f8fafc;       /* Slate-50 */
+    --text-secondary: #94a3b8;     /* Slate-400 */
+    --border-color: #1e293b;       /* Slate-800 */
+    --card-bg: rgba(15, 23, 42, 0.6);
+    --card-border: rgba(30, 41, 59, 0.8);
+    
+    /* Semantic variables for inputs & controls */
+    --bg-input: rgba(15, 23, 42, 0.65);    /* Dark slate */
+    --border-input: #334155;                /* Slate-700 */
+    --text-input: #f8fafc;                  /* Slate-50 */
+    --bg-input-hover: rgba(30, 41, 59, 0.8); /* Slate-800 on hover */
+  }
+
+  body {
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+}
+
+/* Glassmorphism custom classes for extra aesthetic premium feeling */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.04);
+}
+
+@media (min-width: 640px) {
+  .glass-panel {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+.dark .glass-panel {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-panel-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px 0 rgba(15, 23, 42, 0.08);
+  border-color: var(--color-brand-primary);
+}
+
+.dark .glass-panel-hover:hover {
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Beautiful custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-primary);
+}
+
+/* Background gradient blobs to add dynamic layout elements */
+.blob-bg {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: -10;
+  opacity: 0.15;
+  pointer-events: none;
+}
+.dark .blob-bg {
+  opacity: 0.08;
+}
+
+/* Safe area utilities for modern notch/bar devices */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
