@@ -96,6 +96,7 @@ export const getKosWalletStatus = (income, expenses) => {
       description: 'Add your allowance to start budgeting!',
       themeColor: 'text-gray-500 bg-gray-500/10 border-gray-500/30',
       emoji: '🪙',
+      key: 'no_budget'
     }
   }
 
@@ -108,6 +109,7 @@ export const getKosWalletStatus = (income, expenses) => {
       description: 'Your wallet is healthy! Pizza or cafe sessions are approved.',
       themeColor: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30 dark:text-emerald-400',
       emoji: '😎',
+      key: 'aman_jaya'
     }
   }
   
@@ -117,6 +119,7 @@ export const getKosWalletStatus = (income, expenses) => {
       description: 'Moderate health. Stick to local foods and hold back on impulse purchases.',
       themeColor: 'text-amber-500 bg-amber-500/10 border-amber-500/30 dark:text-amber-400',
       emoji: '🍛',
+      key: 'siaga_santai'
     }
   }
 
@@ -126,6 +129,7 @@ export const getKosWalletStatus = (income, expenses) => {
       description: 'Critical balance! Time to stock up on instant noodles and walk to campus.',
       themeColor: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
       emoji: '🍜',
+      key: 'darurat_kost'
     }
   }
 
@@ -134,6 +138,7 @@ export const getKosWalletStatus = (income, expenses) => {
     description: 'Overbudget! You have spent more than you earned. Alert your parents immediately!',
     themeColor: 'text-rose-600 bg-rose-600/20 border-rose-600/40 dark:text-rose-500 animate-pulse',
     emoji: '💸',
+    key: 'kanker'
   }
 }
 

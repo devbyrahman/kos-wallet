@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useTransactions } from '../hooks/useTransactions'
+import { useLanguage } from '../hooks/useLanguage'
 import { calculateTotalIncome, calculateTotalExpenses, calculateRemainingBalance, getKosWalletStatus } from '../utils/calculations'
 import { formatRupiah } from '../utils/formatters'
 import TransactionForm from '../components/TransactionForm'
@@ -29,6 +30,7 @@ import { LogOut, Sun, Moon, Plus, Wallet, ArrowUpCircle, ArrowDownCircle, Heart,
 export default function Dashboard() {
   const { profile, signOut } = useAuth()
   const { transactions } = useTransactions()
+  const { t, language, setLanguage } = useLanguage()
 
   const [isFormOpen, setIsFormOpen] = useState(false)
   
@@ -89,7 +91,7 @@ export default function Dashboard() {
             <p className="text-[10px] md:text-xs text-app-text-secondary font-semibold flex items-center gap-1 leading-none">
               <User size={10} className="text-purple-400 shrink-0 sm:w-3 sm:h-3" />
               <span className="truncate max-w-[100px] xs:max-w-[200px] sm:max-w-none">
-                Anak Kos: {profile?.full_name || 'Student'}
+                {t('student')}: {profile?.full_name || 'Student'}
               </span>
             </p>
           </div>
@@ -97,6 +99,17 @@ export default function Dashboard() {
 
         {/* Action Button Toggles */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Language Switcher Button */}
+          <button
+            onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
+            className="px-2.5 py-2 sm:px-3 sm:py-2.5 bg-app-bg-input text-app-text-primary border border-app-border hover:bg-app-bg-input-hover rounded-xl transition-colors font-bold text-[10px] sm:text-xs hover:cursor-pointer flex items-center gap-1 shadow-sm shrink-0"
+            title="Switch Language / Ganti Bahasa"
+          >
+            <span className={language === 'id' ? 'text-purple-400 font-extrabold' : 'opacity-60'}>ID</span>
+            <span className="opacity-40 font-normal">|</span>
+            <span className={language === 'en' ? 'text-purple-400 font-extrabold' : 'opacity-60'}>EN</span>
+          </button>
+
           {/* Light/Dark Toggle */}
           <button
             onClick={handleToggleTheme}
@@ -112,7 +125,7 @@ export default function Dashboard() {
             className="flex items-center gap-1.5 py-2.5 px-3 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 hover:cursor-pointer"
           >
             <LogOut size={14} />
-            <span className="hidden xs:inline">SIGN OUT</span>
+            <span className="hidden xs:inline">{t('sign_out')}</span>
           </button>
         </div>
       </header>
@@ -126,11 +139,11 @@ export default function Dashboard() {
             <ArrowUpCircle size={20} className="sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">Allowance (In)</h3>
+            <h3 className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">{t('allowance')}</h3>
             <p className="text-xl sm:text-2xl font-extrabold text-emerald-400 tracking-tight mt-1 truncate">
               {formatRupiah(totalIncome)}
             </p>
-            <p className="text-[10px] text-app-text-secondary/80 font-semibold mt-0.5">Total funds collected</p>
+            <p className="text-[10px] text-app-text-secondary/80 font-semibold mt-0.5">{t('allowance_sub')}</p>
           </div>
         </div>
 
@@ -140,11 +153,11 @@ export default function Dashboard() {
             <ArrowDownCircle size={20} className="sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">Expenses (Out)</h3>
+            <h3 className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">{t('expenses')}</h3>
             <p className="text-xl sm:text-2xl font-extrabold text-rose-400 tracking-tight mt-1 truncate">
               {formatRupiah(totalExpenses)}
             </p>
-            <p className="text-[10px] text-app-text-secondary/80 font-semibold mt-0.5">Total money spent</p>
+            <p className="text-[10px] text-app-text-secondary/80 font-semibold mt-0.5">{t('expenses_sub')}</p>
           </div>
         </div>
 
@@ -154,11 +167,11 @@ export default function Dashboard() {
             <Wallet size={20} className="sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">Remaining Balance</h3>
+            <h3 className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">{t('balance')}</h3>
             <p className="text-xl sm:text-2xl font-extrabold text-purple-400 tracking-tight mt-1 truncate">
               {formatRupiah(remainingBalance)}
             </p>
-            <p className="text-[10px] text-app-text-secondary/80 font-semibold mt-0.5">Available money on hand</p>
+            <p className="text-[10px] text-app-text-secondary/80 font-semibold mt-0.5">{t('balance_sub')}</p>
           </div>
         </div>
 
@@ -172,13 +185,13 @@ export default function Dashboard() {
           </span>
           <div>
             <div className="flex flex-wrap items-center gap-1.5 xs:gap-2">
-              <h3 className="text-sm font-bold text-app-text-primary leading-none">Wallet Condition</h3>
+              <h3 className="text-sm font-bold text-app-text-primary leading-none">{t('wallet_condition')}</h3>
               <span className={`py-1 px-2 rounded-full text-[9px] sm:text-[10px] font-extrabold border uppercase tracking-wider leading-none ${walletStatus.themeColor}`}>
-                {walletStatus.statusName}
+                {t(`status_${walletStatus.key}_title`) || walletStatus.statusName}
               </span>
             </div>
             <p className="text-[11px] text-app-text-secondary mt-1.5 font-semibold">
-              {walletStatus.description}
+              {t(`status_${walletStatus.key}_desc`) || walletStatus.description}
             </p>
           </div>
         </div>
@@ -186,7 +199,7 @@ export default function Dashboard() {
         {/* Budget Progress bar indicator */}
         <div className="flex-1 lg:max-w-md w-full flex flex-col gap-1.5 shrink-0">
           <div className="flex justify-between text-[10px] font-bold text-app-text-secondary uppercase tracking-wider">
-            <span>Expenses Consumption</span>
+            <span>{t('consumption')}</span>
             <span>{expensePercentage.toFixed(0)}%</span>
           </div>
           <div className="w-full h-3 bg-app-bg-input rounded-full overflow-hidden border border-app-border p-0.5">
@@ -208,7 +221,7 @@ export default function Dashboard() {
       {/* We mount the chart using key syncing. When isDarkMode toggles, Recharts instantly unmounts */}
       {/* and redraws all SVG elements with correct dynamic color properties, preventing color flashes. */}
       <section className="w-full overflow-hidden">
-        <WalletStats key={isDarkMode ? 'dark' : 'light'} />
+        <WalletStats key={`${isDarkMode ? 'dark' : 'light'}-${language}`} />
       </section>
 
       {/* MAIN LOG HISTORY & ACTION BUTTON HEADER */}
@@ -216,7 +229,7 @@ export default function Dashboard() {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3">
             <h2 className="text-lg font-bold text-app-text-primary flex items-center gap-2">
-              <span>Financial Ledger Log</span>
+              <span>{t('ledger_log')}</span>
             </h2>
 
             {/* Action CTA Button */}
@@ -225,7 +238,7 @@ export default function Dashboard() {
               className="flex items-center justify-center gap-1.5 py-2.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs tracking-wider rounded-xl transition-all shadow-lg shadow-purple-600/10 active:translate-y-0.5 hover:cursor-pointer w-full xs:w-auto"
             >
               <Plus size={16} />
-              <span>ADD TRANSACTION</span>
+              <span>{t('add_transaction')}</span>
             </button>
           </div>
 
@@ -239,9 +252,9 @@ export default function Dashboard() {
 
       {/* FOOTER ACCENT BRAND */}
       <footer className="mt-8 text-center text-[10px] text-app-text-secondary font-semibold tracking-wider flex items-center justify-center gap-1">
-        <span>KOS WALLET © 2026. CREATED WITH</span>
-        <Heart size={10} className="text-rose-500" />
-        <span>FOR CAMPUS STUDENTS LIVING IN BOARDING HOUSES.</span>
+        <span>{t('footer_brand')}</span>
+        <Heart size={10} className="text-rose-500 animate-pulse" />
+        <span>{t('footer_sub')}</span>
       </footer>
 
     </div>

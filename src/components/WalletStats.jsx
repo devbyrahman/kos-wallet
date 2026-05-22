@@ -1,5 +1,6 @@
 import React from 'react'
 import { useTransactions } from '../hooks/useTransactions'
+import { useLanguage } from '../hooks/useLanguage'
 import { calculateExpensesByCategory, calculateDailySpendingTrend } from '../utils/calculations'
 import { formatRupiah } from '../utils/formatters'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
@@ -20,6 +21,7 @@ import { BarChart3, PieChart as PieIcon, TrendingUp } from 'lucide-react'
 
 export default function WalletStats() {
   const { transactions } = useTransactions()
+  const { t } = useLanguage()
 
   const pieData = calculateExpensesByCategory(transactions)
   const areaData = calculateDailySpendingTrend(transactions)
@@ -31,7 +33,7 @@ export default function WalletStats() {
     if (active && payload && payload.length) {
       return (
         <div className="p-3 bg-app-card-bg border border-app-card-border rounded-xl shadow-xl text-left backdrop-blur-md">
-          <p className="text-[10px] font-bold text-app-text-secondary uppercase tracking-wider">Daily Expense</p>
+          <p className="text-[10px] font-bold text-app-text-secondary uppercase tracking-wider">{t('daily_expense')}</p>
           <p className="text-sm font-extrabold text-purple-500 mt-0.5">
             {formatRupiah(payload[0].value)}
           </p>
@@ -45,7 +47,7 @@ export default function WalletStats() {
     if (active && payload && payload.length) {
       return (
         <div className="p-3 bg-app-card-bg border border-app-card-border rounded-xl shadow-xl text-left backdrop-blur-md">
-          <p className="text-[10px] font-bold text-app-text-secondary uppercase tracking-wider">{payload[0].name}</p>
+          <p className="text-[10px] font-bold text-app-text-secondary uppercase tracking-wider">{t(payload[0].name)}</p>
           <p className="text-sm font-extrabold mt-0.5" style={{ color: payload[0].payload.color }}>
             {formatRupiah(payload[0].value)}
           </p>
@@ -65,15 +67,15 @@ export default function WalletStats() {
             <TrendingUp size={18} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-app-text-primary">Daily Spending Trend</h3>
-            <p className="text-[10px] text-app-text-secondary font-medium">Daily money outflows chronologically</p>
+            <h3 className="text-sm font-bold text-app-text-primary">{t('daily_spending')}</h3>
+            <p className="text-[10px] text-app-text-secondary font-medium">{t('daily_spending_sub')}</p>
           </div>
         </div>
 
         <div className="flex-1 w-full min-h-[220px]">
           {!hasExpenses ? (
             <div className="h-full flex items-center justify-center text-app-text-secondary/70 text-xs font-semibold">
-              No expense data recorded this month.
+              {t('no_expense_chart')}
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -123,15 +125,15 @@ export default function WalletStats() {
             <PieIcon size={18} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-app-text-primary">Expense Distribution</h3>
-            <p className="text-[10px] text-app-text-secondary font-medium">Categorized cost ratios this month</p>
+            <h3 className="text-sm font-bold text-app-text-primary">{t('category_dist')}</h3>
+            <p className="text-[10px] text-app-text-secondary font-medium">{t('category_dist_sub')}</p>
           </div>
         </div>
 
         <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
           {!hasExpenses ? (
             <div className="col-span-12 h-full flex items-center justify-center text-app-text-secondary/70 text-xs font-semibold">
-              No categories populated yet.
+              {t('no_categories_chart')}
             </div>
           ) : (
             <>
@@ -163,7 +165,7 @@ export default function WalletStats() {
                   <div key={idx} className="flex items-center justify-between gap-2 text-xs font-semibold">
                     <div className="flex items-center gap-1.5 min-w-0">
                       <span className="w-2.5 h-2.5 rounded shrink-0" style={{ backgroundColor: entry.color }}></span>
-                      <span className="text-app-text-primary truncate">{entry.name}</span>
+                      <span className="text-app-text-primary truncate">{t(entry.name)}</span>
                     </div>
                     <span className="text-app-text-secondary font-bold shrink-0">{formatRupiah(entry.value)}</span>
                   </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useTransactions } from '../hooks/useTransactions'
+import { useLanguage } from '../hooks/useLanguage'
 import { formatRupiah, formatDate, getMonthKey } from '../utils/formatters'
 import { Trash2, Filter, Calendar, X, Landmark, HelpCircle, Utensils, Car, BookOpen, Wifi, Gamepad2, Flame, PiggyBank, Wallet, PlusCircle } from 'lucide-react'
 
@@ -18,6 +19,7 @@ const IconMap = {
 
 export default function TransactionList() {
   const { transactions, categories, deleteTransaction, refetchTransactions, loading } = useTransactions()
+  const { t } = useLanguage()
 
   const [monthFilter, setMonthFilter] = useState(getMonthKey()) // Default: Current Month
   const [categoryFilter, setCategoryFilter] = useState('ALL')
@@ -63,7 +65,7 @@ export default function TransactionList() {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <h3 className="text-base font-bold text-app-text-primary flex items-center gap-2">
             <Filter size={18} className="text-purple-400" />
-            <span>Filter Transactions</span>
+            <span>{t('filter_transactions')}</span>
           </h3>
           {(monthFilter !== getMonthKey() || categoryFilter !== 'ALL') && (
             <button
@@ -74,7 +76,7 @@ export default function TransactionList() {
               className="text-xs font-semibold text-purple-600 hover:text-purple-500 flex items-center gap-1 hover:cursor-pointer"
             >
               <X size={14} />
-              <span>Reset Filters</span>
+              <span>{t('reset_filters')}</span>
             </button>
           )}
         </div>
@@ -84,7 +86,7 @@ export default function TransactionList() {
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-app-text-secondary uppercase tracking-wider flex items-center gap-1">
               <Calendar size={12} />
-              <span>Select Month</span>
+              <span>{t('select_month')}</span>
             </label>
             <select
               value={monthFilter}
@@ -103,17 +105,17 @@ export default function TransactionList() {
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-app-text-secondary uppercase tracking-wider flex items-center gap-1">
               <PlusCircle size={12} className="text-app-text-secondary" />
-              <span>Select Category</span>
+              <span>{t('select_category_filter')}</span>
             </label>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="w-full py-2.5 px-3 bg-app-bg-input text-app-text-primary border border-app-border outline-none focus:border-purple-500 rounded-xl transition-all text-xs font-semibold cursor-pointer"
             >
-              <option value="ALL">All Categories</option>
+              <option value="ALL">{t('filter_category')}</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
-                  [{cat.type.toUpperCase()}] {cat.name}
+                  [{cat.type.toUpperCase()}] {t(cat.name)}
                 </option>
               ))}
             </select>
@@ -127,16 +129,16 @@ export default function TransactionList() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-16 text-app-text-secondary gap-2">
             <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-sm font-semibold tracking-wide">Syncing with ledger...</span>
+            <span className="text-sm font-semibold tracking-wide">{t('syncing_ledger')}</span>
           </div>
         ) : transactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
             <div className="p-4 bg-app-bg-input rounded-full text-app-text-secondary/60 mb-3">
               <Landmark size={40} />
             </div>
-            <h4 className="text-base font-bold text-app-text-primary mb-1">No transactions found</h4>
+            <h4 className="text-base font-bold text-app-text-primary mb-1">{t('no_transactions_found')}</h4>
             <p className="text-xs text-app-text-secondary max-w-xs font-medium">
-              We couldn't find any financial entries for the selected month or category. Try modifying your filters!
+              {t('no_transactions_found_desc')}
             </p>
           </div>
         ) : (
@@ -154,20 +156,20 @@ export default function TransactionList() {
                   {deleteConfirmId === tx.id && (
                     <div className="absolute inset-0 bg-app-card-bg/95 backdrop-blur-md flex items-center justify-between px-4 py-2 z-10 animate-fade-in border border-rose-500/20 rounded-xl">
                       <span className="text-xs font-bold text-rose-500 dark:text-rose-400">
-                        Delete this record?
+                        {t('delete_record_confirm')}
                       </span>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleDelete(tx.id)}
                           className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[10px] sm:text-xs font-bold transition-all shadow shadow-rose-600/10 cursor-pointer active:translate-y-0.5"
                         >
-                          Confirm
+                          {t('btn_confirm')}
                         </button>
                         <button
                           onClick={() => setDeleteConfirmId(null)}
                           className="px-3 py-1.5 bg-app-bg-input hover:bg-app-bg-input-hover border border-app-border text-app-text-primary rounded-lg text-[10px] sm:text-xs font-bold transition-all cursor-pointer"
                         >
-                          Cancel
+                          {t('btn_cancel')}
                         </button>
                       </div>
                     </div>
@@ -190,7 +192,7 @@ export default function TransactionList() {
                         {tx.description}
                       </h4>
                       <div className="flex items-center gap-2 mt-0.5 text-xs text-app-text-secondary font-medium">
-                        <span>{tx.categories?.name || 'Uncategorized'}</span>
+                        <span>{tx.categories?.name ? t(tx.categories.name) : t('uncategorized')}</span>
                         <span className="text-app-text-secondary/40 font-bold">•</span>
                         <span>{formatDate(tx.date)}</span>
                       </div>

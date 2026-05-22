@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { useLanguage } from '../hooks/useLanguage'
 import { Mail, Lock, User, Wallet, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react'
 
 /**
@@ -22,6 +23,7 @@ import { Mail, Lock, User, Wallet, AlertCircle, Eye, EyeOff, Loader2 } from 'luc
 
 export default function Auth() {
   const { signIn, signUp, authLoading, error: authError } = useAuth()
+  const { t, language, setLanguage } = useLanguage()
   
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
@@ -37,15 +39,15 @@ export default function Auth() {
 
     // Basic Input Validations
     if (!email || !password) {
-      setLocalError('Please fill in all fields!')
+      setLocalError(t('err_fill_all'))
       return
     }
     if (password.length < 6) {
-      setLocalError('Password must be at least 6 characters long!')
+      setLocalError(t('err_password_len'))
       return
     }
     if (!isLogin && !fullName) {
-      setLocalError('Please tell us your full name!')
+      setLocalError(t('err_full_name'))
       return
     }
 
@@ -60,7 +62,7 @@ export default function Auth() {
         setLocalError(error)
       } else {
         // Success alert for signup
-        alert('Account created! Please log in.')
+        alert(t('alert_account_created'))
         setIsLogin(true)
         setPassword('')
       }
@@ -69,6 +71,19 @@ export default function Auth() {
 
   return (
     <div className="relative min-h-dvh flex items-center justify-center p-4 overflow-hidden select-none bg-app">
+      {/* Absolute Language Switcher Button for Auth Gateway */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
+          className="px-2.5 py-2 bg-app-bg-input text-app-text-primary border border-app-border hover:bg-app-bg-input-hover rounded-xl transition-colors font-bold text-[10px] sm:text-xs hover:cursor-pointer flex items-center gap-1 shadow-sm shrink-0"
+          title="Switch Language / Ganti Bahasa"
+        >
+          <span className={language === 'id' ? 'text-purple-400 font-extrabold' : 'opacity-60'}>ID</span>
+          <span className="opacity-40 font-normal">|</span>
+          <span className={language === 'en' ? 'text-purple-400 font-extrabold' : 'opacity-60'}>EN</span>
+        </button>
+      </div>
+
       {/* Visual background blobs for premium aesthetic */}
       <div className="blob-bg bg-purple-500/15 top-1/4 left-1/4"></div>
       <div className="blob-bg bg-cyan-500/15 bottom-1/4 right-1/4"></div>
@@ -85,7 +100,7 @@ export default function Auth() {
             Kos Wallet
           </h1>
           <p className="text-sm text-app-text-secondary font-semibold">
-            {isLogin ? 'Welcome back! Manage your allowance efficiently.' : 'Join your fellow boarders and save money!'}
+            {isLogin ? t('auth_welcome_back_desc') : t('auth_register_desc')}
           </p>
         </div>
 
@@ -103,7 +118,7 @@ export default function Auth() {
           {!isLogin && (
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">
-                Full Name
+                {t('full_name')}
               </label>
               <div className="relative">
                 <User size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-app-text-secondary/60" />
@@ -122,7 +137,7 @@ export default function Auth() {
           {/* Email field */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">
-              Email Address
+              {t('email_address')}
             </label>
             <div className="relative">
               <Mail size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-app-text-secondary/60" />
@@ -140,7 +155,7 @@ export default function Auth() {
           {/* Password field */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">
-              Password
+              {t('password')}
             </label>
             <div className="relative">
               <Lock size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-app-text-secondary/60" />
@@ -172,10 +187,10 @@ export default function Auth() {
             {authLoading ? (
               <>
                 <Loader2 size={18} className="animate-spin" />
-                <span>Processing...</span>
+                <span>{t('processing')}</span>
               </>
             ) : (
-              <span>{isLogin ? 'SIGN IN' : 'CREATE ACCOUNT'}</span>
+              <span>{isLogin ? t('btn_sign_in') : t('btn_create_account')}</span>
             )}
           </button>
         </form>
@@ -183,7 +198,7 @@ export default function Auth() {
         {/* Toggle Mode Footer */}
         <div className="mt-8 text-center">
           <p className="text-sm text-app-text-secondary font-semibold">
-            {isLogin ? "Don't have an account yet?" : 'Already registered?'}
+            {isLogin ? t('dont_have_account') : t('already_registered')}
             <button
               type="button"
               onClick={() => {
@@ -193,7 +208,7 @@ export default function Auth() {
               disabled={authLoading}
               className="ml-1.5 font-bold text-purple-600 hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300 outline-none underline decoration-purple-600/30 dark:decoration-purple-400/30 hover:cursor-pointer transition-colors"
             >
-              {isLogin ? 'Sign Up' : 'Sign In'}
+              {isLogin ? t('sign_up') : t('sign_in')}
             </button>
           </p>
         </div>

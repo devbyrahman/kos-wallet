@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useTransactions } from '../hooks/useTransactions'
+import { useLanguage } from '../hooks/useLanguage'
 import { PlusCircle, MinusCircle, X, Loader2, Calendar, FileText } from 'lucide-react'
 
 /**
@@ -21,6 +22,7 @@ import { PlusCircle, MinusCircle, X, Loader2, Calendar, FileText } from 'lucide-
 
 export default function TransactionForm({ isOpen, onClose }) {
   const { categories, addTransaction, loading } = useTransactions()
+  const { t } = useLanguage()
 
   const [type, setType] = useState('expense') // 'expense' or 'income'
   const [amount, setAmount] = useState('')
@@ -76,15 +78,15 @@ export default function TransactionForm({ isOpen, onClose }) {
 
     const numAmount = Number(amount)
     if (isNaN(numAmount) || numAmount <= 0) {
-      setValidationError('Amount must be a positive number greater than zero!')
+      setValidationError(t('val_amount') || 'Amount must be a positive number greater than zero!')
       return
     }
     if (!description.trim()) {
-      setValidationError('Please enter a description (e.g. Nasi Goreng Kantin).')
+      setValidationError(t('val_desc') || 'Please enter a description.')
       return
     }
     if (!categoryId) {
-      setValidationError('Please select a category.')
+      setValidationError(t('val_category') || 'Please select a category.')
       return
     }
 
@@ -121,7 +123,7 @@ export default function TransactionForm({ isOpen, onClose }) {
               ) : (
                 <PlusCircle className="text-emerald-500" size={24} />
               )}
-              <span>Add Transaction</span>
+              <span>{t('new_transaction')}</span>
             </h2>
             <button
               onClick={handleClose}
@@ -150,7 +152,7 @@ export default function TransactionForm({ isOpen, onClose }) {
                     : 'text-app-text-secondary hover:text-app-text-primary hover:bg-app-bg-input-hover/50'
                 }`}
               >
-                EXPENSE <span className="hidden xs:inline">(OUT)</span>
+                {t('type_expense').toUpperCase()}
               </button>
               <button
                 type="button"
@@ -161,7 +163,7 @@ export default function TransactionForm({ isOpen, onClose }) {
                     : 'text-app-text-secondary hover:text-app-text-primary hover:bg-app-bg-input-hover/50'
                 }`}
               >
-                INCOME <span className="hidden xs:inline">/ ALLOWANCE (IN)</span>
+                {t('type_income').toUpperCase()}
               </button>
             </div>
 
@@ -169,7 +171,7 @@ export default function TransactionForm({ isOpen, onClose }) {
               {/* Amount Field */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">
-                  Amount (Rupiah)
+                  {t('amount')}
                 </label>
                 <input
                   type="number"
@@ -186,7 +188,7 @@ export default function TransactionForm({ isOpen, onClose }) {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-app-text-secondary uppercase tracking-wider flex items-center gap-1">
                   <Calendar size={13} />
-                  <span>Date</span>
+                  <span>{t('date')}</span>
                 </label>
                 <input
                   type="date"
@@ -203,11 +205,11 @@ export default function TransactionForm({ isOpen, onClose }) {
               {/* Description Input */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">
-                  Description
+                  {t('description')}
                 </label>
                 <input
                   type="text"
-                  placeholder={type === 'expense' ? 'e.g. Nasi Goreng Kantin' : 'e.g. Allowance from Parents'}
+                  placeholder={type === 'expense' ? t('description_ph') : 'e.g. Allowance from Parents'}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   disabled={loading}
@@ -219,7 +221,7 @@ export default function TransactionForm({ isOpen, onClose }) {
               {/* Category Dropdown Selection */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-app-text-secondary uppercase tracking-wider">
-                  Category
+                  {t('category')}
                 </label>
                 <select
                   value={categoryId}
@@ -230,7 +232,7 @@ export default function TransactionForm({ isOpen, onClose }) {
                 >
                   {filteredCategories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.name}
+                      {t(cat.name)}
                     </option>
                   ))}
                 </select>
@@ -241,10 +243,10 @@ export default function TransactionForm({ isOpen, onClose }) {
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-app-text-secondary uppercase tracking-wider flex items-center gap-1">
                 <FileText size={13} />
-                <span>Notes (Optional)</span>
+                <span>{t('notes')}</span>
               </label>
               <textarea
-                placeholder="Add more details about this transaction..."
+                placeholder={t('notes_ph') || "Add more details about this transaction..."}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 disabled={loading}
@@ -264,7 +266,7 @@ export default function TransactionForm({ isOpen, onClose }) {
                 className="w-4 h-4 rounded border-app-border bg-app-bg-input text-purple-600 focus:ring-purple-500 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               />
               <label htmlFor="recurring" className="text-xs text-app-text-secondary font-semibold select-none cursor-pointer">
-                Is this a recurring monthly transaction?
+                {t('recurring_label') || "Is this a recurring monthly transaction?"}
               </label>
             </div>
 
@@ -276,7 +278,7 @@ export default function TransactionForm({ isOpen, onClose }) {
                 disabled={loading}
                 className="flex-1 py-3 px-4 bg-app-bg-input hover:bg-app-bg-input-hover border border-app-border text-app-text-primary font-bold text-xs tracking-wider rounded-xl transition-all hover:cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                CANCEL
+                {t('btn_cancel')}
               </button>
               <button
                 type="submit"
@@ -290,10 +292,10 @@ export default function TransactionForm({ isOpen, onClose }) {
                 {loading ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    <span>ADDING...</span>
+                    <span>{t('btn_saving')}</span>
                   </>
                 ) : (
-                  <span>SAVE TRANSACTION</span>
+                  <span>{t('btn_save')}</span>
                 )}
               </button>
             </div>

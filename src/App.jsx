@@ -1,5 +1,6 @@
 import React from 'react'
 import { useAuth } from './hooks/useAuth'
+import { useLanguage } from './hooks/useLanguage'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import { Loader2, Wallet } from 'lucide-react'
@@ -19,6 +20,7 @@ import { Loader2, Wallet } from 'lucide-react'
 
 function App() {
   const { user, initializing } = useAuth()
+  const { t } = useLanguage()
 
   // 1. Render premium loading splash screen
   if (initializing) {
@@ -36,7 +38,7 @@ function App() {
           </h2>
           <div className="flex items-center gap-1.5 text-xs font-semibold text-app-text-secondary">
             <Loader2 size={14} className="animate-spin text-purple-500" />
-            <span>Establishing secure database handshake...</span>
+            <span>{t('establishing_handshake')}</span>
           </div>
         </div>
       </div>
