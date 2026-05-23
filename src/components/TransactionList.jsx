@@ -1,8 +1,25 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useTransactions } from '../hooks/useTransactions'
 import { useLanguage } from '../hooks/useLanguage'
 import { formatRupiah, formatDate, getMonthKey } from '../utils/formatters'
-import { Trash2, Filter, Calendar, X, Landmark, HelpCircle, Utensils, Car, BookOpen, Wifi, Gamepad2, Flame, PiggyBank, Wallet, PlusCircle } from 'lucide-react'
+import { 
+  Trash2, 
+  Filter, 
+  Calendar, 
+  X, 
+  Landmark, 
+  HelpCircle, 
+  Search,
+  Utensils, 
+  Car, 
+  BookOpen, 
+  Wifi, 
+  Gamepad2, 
+  Flame, 
+  PiggyBank, 
+  Wallet, 
+  PlusCircle 
+} from 'lucide-react'
 
 // Simple map to render Lucide Icons dynamically from database strings
 const IconMap = {
@@ -18,21 +35,13 @@ const IconMap = {
 }
 
 export default function TransactionList() {
-  const { transactions, categories, deleteTransaction, refetchTransactions, loading } = useTransactions()
+  const { transactions, categories, deleteTransaction, loading } = useTransactions()
   const { t } = useLanguage()
 
   const [monthFilter, setMonthFilter] = useState(getMonthKey()) // Default: Current Month
   const [categoryFilter, setCategoryFilter] = useState('ALL')
+  const [searchQuery, setSearchQuery] = useState('')
   const [deleteConfirmId, setDeleteConfirmId] = useState(null)
-
-  // Trigger refetch whenever filters change
-  useEffect(() => {
-    const filters = {}
-    if (monthFilter) filters.monthKey = monthFilter
-    if (categoryFilter !== 'ALL') filters.categoryId = categoryFilter
-
-    refetchTransactions(filters)
-  }, [monthFilter, categoryFilter, refetchTransactions])
 
   const handleDelete = async (id) => {
     const { success } = await deleteTransaction(id)
@@ -57,42 +66,60 @@ export default function TransactionList() {
 
   const filterMonths = getFilterMonths()
 
+  // Perform highly robust in-memory client-side filtering!
+  // This is ultra-fast, allows real-time text searching, and completely avoids disrupting total balance metrics!
+  const filteredTransactions = transactions.filter((tx) => {
+    const matchMonth = !monthFilter || tx.month_key === monthFilter
+    const matchCategory = categoryFilter === 'ALL' || tx.category_id === categoryFilter
+    
+    const matchSearch = !searchQuery || 
+      tx.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (tx.notes && tx.notes.toLowerCase().includes(searchQuery.toLowerCase()))
+
+    return matchMonth && matchCategory && matchSearch
+  })
+
   return (
     <div className="flex flex-col gap-4 text-left select-none">
       
-      {/* Dynamic Filter Controls Card */}
-      <div className="glass-panel rounded-2xl p-4 sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-          <h3 className="text-base font-bold text-app-text-primary flex items-center gap-2">
+      {/* Dynamic Filter & Search Controls Card */}
+      <div className="glass-panel rounded-2xl p-4 sm:p-5 space-y-4">
+        
+        {/* Header and Reset Button */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h3 className="text-base font-display font-bold text-app-text-primary flex items-center gap-2">
             <Filter size={18} className="text-purple-400" />
-            <span>{t('filter_transactions')}</span>
+            <span>{t('filter_transactions') || 'Filter Transactions'}</span>
           </h3>
-          {(monthFilter !== getMonthKey() || categoryFilter !== 'ALL') && (
+          {(monthFilter !== getMonthKey() || categoryFilter !== 'ALL' || searchQuery !== '') && (
             <button
               onClick={() => {
                 setMonthFilter(getMonthKey())
                 setCategoryFilter('ALL')
+                setSearchQuery('')
               }}
-              className="text-xs font-semibold text-purple-600 hover:text-purple-500 flex items-center gap-1 hover:cursor-pointer"
+              className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 hover:cursor-pointer transition-colors"
             >
               <X size={14} />
-              <span>{t('reset_filters')}</span>
+              <span>{t('reset_filters') || 'Reset Filters'}</span>
             </button>
           )}
         </div>
 
+        {/* Filters Select Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {/* Month Selector Filter */}
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 text-left">
             <label className="text-[11px] font-bold text-app-text-secondary uppercase tracking-wider flex items-center gap-1">
-              <Calendar size={12} />
-              <span>{t('select_month')}</span>
+              <Calendar size={12} className="text-purple-400" />
+              <span>{t('select_month') || 'Select Month'}</span>
             </label>
             <select
               value={monthFilter}
               onChange={(e) => setMonthFilter(e.target.value)}
               className="w-full py-2.5 px-3 bg-app-bg-input text-app-text-primary border border-app-border outline-none focus:border-purple-500 rounded-xl transition-all text-xs font-semibold cursor-pointer"
             >
+              <option value="">{t('filter_month') || 'All Months'}</option>
               {filterMonths.map((m) => (
                 <option key={m.value} value={m.value}>
                   {m.label}
@@ -102,17 +129,17 @@ export default function TransactionList() {
           </div>
 
           {/* Category Selector Filter */}
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 text-left">
             <label className="text-[11px] font-bold text-app-text-secondary uppercase tracking-wider flex items-center gap-1">
-              <PlusCircle size={12} className="text-app-text-secondary" />
-              <span>{t('select_category_filter')}</span>
+              <PlusCircle size={12} className="text-purple-400" />
+              <span>{t('select_category_filter') || 'Select Category'}</span>
             </label>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="w-full py-2.5 px-3 bg-app-bg-input text-app-text-primary border border-app-border outline-none focus:border-purple-500 rounded-xl transition-all text-xs font-semibold cursor-pointer"
             >
-              <option value="ALL">{t('filter_category')}</option>
+              <option value="ALL">{t('filter_category') || 'All Categories'}</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   [{cat.type.toUpperCase()}] {t(cat.name)}
@@ -121,6 +148,21 @@ export default function TransactionList() {
             </select>
           </div>
         </div>
+
+        {/* Interactive Text Search Bar */}
+        <div className="space-y-1.5 text-left">
+          <div className="relative">
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-app-text-secondary" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('description_ph') || 'Search description, notes...'}
+              className="w-full pl-10 pr-4 py-2.5 bg-app-bg-input text-app-text-primary border border-app-border focus:border-purple-500 outline-none rounded-xl text-xs font-semibold placeholder:text-app-text-secondary/50 transition-all"
+            />
+          </div>
+        </div>
+
       </div>
 
       {/* Transactions Table Log */}
@@ -131,19 +173,19 @@ export default function TransactionList() {
             <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
             <span className="text-sm font-semibold tracking-wide">{t('syncing_ledger')}</span>
           </div>
-        ) : transactions.length === 0 ? (
+        ) : filteredTransactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
             <div className="p-4 bg-app-bg-input rounded-full text-app-text-secondary/60 mb-3">
               <Landmark size={40} />
             </div>
-            <h4 className="text-base font-bold text-app-text-primary mb-1">{t('no_transactions_found')}</h4>
+            <h4 className="text-sm font-bold text-app-text-primary mb-1">{t('no_transactions_found') || 'No transactions found'}</h4>
             <p className="text-xs text-app-text-secondary max-w-xs font-medium">
-              {t('no_transactions_found_desc')}
+              {t('no_transactions_found_desc') || 'We couldn\'t find any financial entries matching your filters.'}
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-app-border max-h-[480px] overflow-y-auto">
-            {transactions.map((tx) => {
+          <div className="divide-y divide-app-border max-h-[520px] overflow-y-auto">
+            {filteredTransactions.map((tx) => {
               const DynamicIcon = IconMap[tx.categories?.icon] || HelpCircle
               const isExpense = tx.type === 'expense'
 
@@ -178,7 +220,7 @@ export default function TransactionList() {
                   {/* Left Section: Category Icon & Metadata */}
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div
-                      className="p-3 rounded-xl shrink-0 flex items-center justify-center"
+                      className="p-3 rounded-xl shrink-0 flex items-center justify-center animate-pulse-slow"
                       style={{
                         backgroundColor: `${tx.categories?.color || '#6B7280'}20`,
                         color: tx.categories?.color || '#6B7280',
@@ -187,7 +229,7 @@ export default function TransactionList() {
                       <DynamicIcon size={20} />
                     </div>
 
-                    <div className="min-w-0">
+                    <div className="min-w-0 text-left">
                       <h4 className="text-sm font-semibold text-app-text-primary truncate">
                         {tx.description}
                       </h4>
@@ -197,7 +239,7 @@ export default function TransactionList() {
                         <span>{formatDate(tx.date)}</span>
                       </div>
                       {tx.notes && (
-                        <p className="text-[11px] text-app-text-secondary/80 font-medium mt-1 border-l-2 border-app-border pl-1.5 truncate max-w-[200px] md:max-w-sm">
+                        <p className="text-[11px] text-app-text-secondary/80 font-medium mt-1 border-l-2 border-app-border pl-1.5 truncate max-w-[180px] sm:max-w-xs md:max-w-sm">
                           {tx.notes}
                         </p>
                       )}

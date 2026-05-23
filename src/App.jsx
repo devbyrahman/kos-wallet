@@ -1,28 +1,44 @@
 import React from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import { useLanguage } from './hooks/useLanguage'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
+import Transactions from './pages/Transactions'
+import Analytics from './pages/Analytics'
+import Budget from './pages/Budget'
+import Settings from './pages/Settings'
+import AppLayout from './layouts/AppLayout'
 import { Loader2, Wallet } from 'lucide-react'
 
-/**
- * MAIN APP CONTAINER (Router & Controller)
- * 
- * Why this component exists:
- * The single entry point for our layout. It acts as our basic, ultra-clean "routing" system.
- * Rather than importing complex router libraries, we use state-based rendering.
- * 
- * Flow Details:
- * 1. Checks `loading` from `useAuth()`. If true, displays a highly aesthetic full-screen loading spinner.
- * 2. Checks `user` from `useAuth()`. If null (unauthenticated), redirects to the `Auth` (Sign In / Signup) page.
- * 3. If the user is signed in, displays the main `Dashboard` page.
- */
+// AuthGuard component to enforce protection
+function ProtectedRoute({ children }) {
+  const { user, initializing } = useAuth()
+
+  if (initializing) {
+    // Let App handle global initialization loading splash
+    return null
+  }
+
+  return user ? children : <Navigate to="/auth" replace />
+}
+
+// PublicRoute to redirect authenticated users away from /auth gateway
+function PublicRoute({ children }) {
+  const { user, initializing } = useAuth()
+
+  if (initializing) {
+    return null
+  }
+
+  return user ? <Navigate to="/dashboard" replace /> : children
+}
 
 function App() {
-  const { user, initializing } = useAuth()
+  const { initializing } = useAuth()
   const { t } = useLanguage()
 
-  // 1. Render premium loading splash screen
+  // 1. Render premium loading splash screen during initial handshake
   if (initializing) {
     return (
       <div className="min-h-dvh bg-app flex flex-col items-center justify-center p-4 select-none relative overflow-hidden">
@@ -45,8 +61,42 @@ function App() {
     )
   }
 
-  // 2. State-Based Page Render Router
-  return user ? <Dashboard /> : <Auth />
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Unprotected Auth Gateway */}
+        <Route 
+          path="/auth" 
+          element={
+            <PublicRoute>
+              <Auth />
+            </PublicRoute>
+          } 
+        />
+
+        {/* Protected App Layout Structure */}
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* Default index redirects to /dashboard */}
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="transactions" element={<Transactions />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="budget" element={<Budget />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+
+        {/* Catch-all fallback redirects to dashboard */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
 export default App

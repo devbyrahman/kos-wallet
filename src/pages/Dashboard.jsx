@@ -1,49 +1,45 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useTransactions } from '../hooks/useTransactions'
 import { useLanguage } from '../hooks/useLanguage'
 import { calculateTotalIncome, calculateTotalExpenses, calculateRemainingBalance, getKosWalletStatus } from '../utils/calculations'
-import { formatRupiah } from '../utils/formatters'
-import TransactionForm from '../components/TransactionForm'
-import TransactionList from '../components/TransactionList'
-import WalletStats from '../components/WalletStats'
-import { LogOut, Sun, Moon, Plus, Wallet, ArrowUpCircle, ArrowDownCircle, Heart, User } from 'lucide-react'
+import { formatRupiah, formatDate } from '../utils/formatters'
+import { 
+  ArrowUpCircle, 
+  ArrowDownCircle, 
+  Wallet, 
+  ChevronRight, 
+  History,
+  TrendingUp,
+  HelpCircle, 
+  Utensils, 
+  Car, 
+  BookOpen, 
+  Wifi, 
+  Gamepad2, 
+  Flame, 
+  PiggyBank, 
+  PlusCircle
+} from 'lucide-react'
 
-/**
- * DASHBOARD PAGE COMPONENT
- * 
- * Why this component exists:
- * The heart of Kos Wallet. Coordinates the financial aggregates, sets up the theme manager,
- * and positions the subcomponents (WalletStats, TransactionList, TransactionForm) in a clean,
- * modern grid structure.
- * 
- * Rationale:
- * - Employs a state-based layout for Light / Dark theme syncing with index.css.
- * - Utilizes our separate calculation engine to fetch aggregates dynamically, keeping this component
- *   presentation-focused and clean.
- * 
- * Beginner Concept - DOM Manipulation in React:
- * We use `document.documentElement.classList.toggle('dark')` to add/remove the class `dark`
- * on the highest-level HTML node, instantly switching CSS variables throughout the application.
- */
+// Simple map to render Lucide Icons dynamically from database strings
+const IconMap = {
+  Utensils: Utensils,
+  Car: Car,
+  BookOpen: BookOpen,
+  Wifi: Wifi,
+  Gamepad2: Gamepad2,
+  Flame: Flame,
+  PiggyBank: PiggyBank,
+  Wallet: Wallet,
+  PlusCircle: PlusCircle
+}
 
 export default function Dashboard() {
-  const { profile, signOut } = useAuth()
-  const { transactions } = useTransactions()
-  const { t, language, setLanguage } = useLanguage()
-
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  
-  // Clean Theme Syncing - Retrieve theme preference synchronously on initial setup
-  // This completely eliminates any layout shifts or Flash of Incorrect Theme (FOIT) on mount!
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme) {
-      return savedTheme === 'dark'
-    }
-    // Fallback to system hardware preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-  })
+  const { profile } = useAuth()
+  const { transactions, loading } = useTransactions()
+  const { t } = useLanguage()
 
   // 1. Calculate Aggregates
   const totalIncome = calculateTotalIncome(transactions)
@@ -56,86 +52,36 @@ export default function Dashboard() {
   // 3. Calculate budget consumption percentage for the progress indicator
   const expensePercentage = totalIncome > 0 ? Math.min((totalExpenses / totalIncome) * 100, 100) : 0
 
-  // Synchronize the isDarkMode state with DOM class lists and Local Storage persistence
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
-  }, [isDarkMode])
-
-  const handleToggleTheme = () => {
-    setIsDarkMode(prev => !prev)
-  }
+  // 4. Fetch the 5 most recent transactions for preview
+  const recentTransactions = transactions.slice(0, 5)
 
   return (
-    <div className="min-h-dvh py-4 px-3 sm:px-6 md:px-8 md:py-6 max-w-7xl mx-auto flex flex-col gap-4 sm:gap-6 text-left transition-colors duration-300">
+    <div className="flex flex-col gap-4 sm:gap-6 text-left">
       
-      {/* BACKGROUND DECORATIVE BLOBS */}
-      <div className="blob-bg bg-purple-600/30 top-10 left-10"></div>
-      <div className="blob-bg bg-cyan-600/30 bottom-10 right-10"></div>
-
-      {/* TOP HEADER NAVIGATION BAR */}
-      <header className="glass-panel rounded-2xl p-3 sm:p-5 flex items-center justify-between gap-3 sm:gap-4">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="p-2 sm:p-2.5 bg-purple-600/20 text-purple-400 rounded-xl border border-purple-500/20 shrink-0">
-            <Wallet size={20} className="sm:w-6 sm:h-6" />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold text-app-text-primary tracking-tight leading-none mb-1">
-              Kos Wallet
-            </h1>
-            <p className="text-[10px] md:text-xs text-app-text-secondary font-semibold flex items-center gap-1 leading-none">
-              <User size={10} className="text-purple-400 shrink-0 sm:w-3 sm:h-3" />
-              <span className="truncate max-w-[100px] xs:max-w-[200px] sm:max-w-none">
-                {t('student')}: {profile?.full_name || 'Student'}
-              </span>
-            </p>
-          </div>
+      {/* WELCOME BANNER */}
+      <div className="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg sm:text-xl font-extrabold text-app-text-primary tracking-tight">
+            Hi, {profile?.full_name || 'Student'}! 👋
+          </h2>
+          <p className="text-xs text-app-text-secondary mt-0.5">
+            {t('auth_welcome_back_desc') || 'Welcome back! Manage your allowance efficiently.'}
+          </p>
         </div>
+        <Link
+          to="/settings"
+          className="text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-0.5 self-start sm:self-auto hover:cursor-pointer"
+        >
+          <span>{t('settings') || 'Settings'}</span>
+          <ChevronRight size={14} />
+        </Link>
+      </div>
 
-        {/* Action Button Toggles */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Language Switcher Button */}
-          <button
-            onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
-            className="px-2.5 py-2 sm:px-3 sm:py-2.5 bg-app-bg-input text-app-text-primary border border-app-border hover:bg-app-bg-input-hover rounded-xl transition-colors font-bold text-[10px] sm:text-xs hover:cursor-pointer flex items-center gap-1 shadow-sm shrink-0"
-            title="Switch Language / Ganti Bahasa"
-          >
-            <span className={language === 'id' ? 'text-purple-400 font-extrabold' : 'opacity-60'}>ID</span>
-            <span className="opacity-40 font-normal">|</span>
-            <span className={language === 'en' ? 'text-purple-400 font-extrabold' : 'opacity-60'}>EN</span>
-          </button>
-
-          {/* Light/Dark Toggle */}
-          <button
-            onClick={handleToggleTheme}
-            className="p-2.5 bg-app-bg-input text-app-text-primary border border-app-border hover:bg-app-bg-input-hover rounded-xl transition-colors hover:cursor-pointer"
-            title="Toggle theme mode"
-          >
-            {isDarkMode ? <Sun size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Moon size={16} className="sm:w-[18px] sm:h-[18px]" />}
-          </button>
-          
-          {/* Logout button */}
-          <button
-            onClick={signOut}
-            className="flex items-center gap-1.5 py-2.5 px-3 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 hover:cursor-pointer"
-          >
-            <LogOut size={14} />
-            <span className="hidden xs:inline">{t('sign_out')}</span>
-          </button>
-        </div>
-      </header>
-
-      {/* OVERVIEW STATS GRID PANELS */}
+      {/* OVERVIEW STATS CARDS */}
       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-        
-        {/* A. Monthly Allowance Card */}
-        <div className="glass-panel rounded-2xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4 relative overflow-hidden">
-          <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/25 shrink-0">
+        {/* Allowance Card */}
+        <div className="glass-panel rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 relative overflow-hidden">
+          <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/25 shrink-0 animate-pulse-slow">
             <ArrowUpCircle size={20} className="sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
@@ -147,8 +93,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* B. Total Expenses Card */}
-        <div className="glass-panel rounded-2xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4 relative overflow-hidden">
+        {/* Total Expenses Card */}
+        <div className="glass-panel rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 relative overflow-hidden">
           <div className="p-2.5 bg-rose-500/10 text-rose-400 rounded-xl border border-rose-500/25 shrink-0">
             <ArrowDownCircle size={20} className="sm:w-6 sm:h-6" />
           </div>
@@ -161,8 +107,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* C. Remaining Cash Balance Card */}
-        <div className="glass-panel rounded-2xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4 relative overflow-hidden col-span-1 sm:col-span-2 md:col-span-1">
+        {/* Remaining Cash Balance Card */}
+        <div className="glass-panel rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 relative overflow-hidden col-span-1 sm:col-span-2 md:col-span-1">
           <div className="p-2.5 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/25 shrink-0">
             <Wallet size={20} className="sm:w-6 sm:h-6" />
           </div>
@@ -174,12 +120,11 @@ export default function Dashboard() {
             <p className="text-[10px] text-app-text-secondary/80 font-semibold mt-0.5">{t('balance_sub')}</p>
           </div>
         </div>
-
       </section>
 
       {/* STUDENT WALLET HEALTH ALERT BAR */}
       <section className="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-5">
-        <div className="flex items-start xs:items-center gap-3 xs:gap-4 text-left">
+        <div className="flex items-start xs:items-center gap-3.5 text-left">
           <span className="text-2xl sm:text-3xl shrink-0" role="img" aria-label="emoji status">
             {walletStatus.emoji}
           </span>
@@ -206,7 +151,7 @@ export default function Dashboard() {
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 expensePercentage >= 85
-                  ? 'bg-rose-500'
+                  ? 'bg-rose-500 animate-pulse'
                   : expensePercentage >= 50
                   ? 'bg-amber-500'
                   : 'bg-emerald-500'
@@ -217,45 +162,99 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* CHARTS / ANALYTICS SECTION */}
-      {/* We mount the chart using key syncing. When isDarkMode toggles, Recharts instantly unmounts */}
-      {/* and redraws all SVG elements with correct dynamic color properties, preventing color flashes. */}
-      <section className="w-full overflow-hidden">
-        <WalletStats key={`${isDarkMode ? 'dark' : 'light'}-${language}`} />
-      </section>
-
-      {/* MAIN LOG HISTORY & ACTION BUTTON HEADER */}
-      <section className="grid grid-cols-1 gap-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3">
-            <h2 className="text-lg font-bold text-app-text-primary flex items-center gap-2">
-              <span>{t('ledger_log')}</span>
-            </h2>
-
-            {/* Action CTA Button */}
-            <button
-              onClick={() => setIsFormOpen(true)}
-              className="flex items-center justify-center gap-1.5 py-2.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs tracking-wider rounded-xl transition-all shadow-lg shadow-purple-600/10 active:translate-y-0.5 hover:cursor-pointer w-full xs:w-auto"
+      {/* RECENT TRANSACTIONS PREVIEW & MINI ANALYTICS PANEL */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        
+        {/* A. Recent Transactions Preview Card */}
+        <div className="glass-panel rounded-2xl p-4 sm:p-5 lg:col-span-2 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-app-text-primary flex items-center gap-2">
+              <History size={16} className="text-purple-400" />
+              <span>{t('recent_transactions') || 'Recent Transactions'}</span>
+            </h3>
+            <Link
+              to="/transactions"
+              className="text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-0.5 hover:cursor-pointer"
             >
-              <Plus size={16} />
-              <span>{t('add_transaction')}</span>
-            </button>
+              <span>{t('view_all') || 'View All'}</span>
+              <ChevronRight size={14} />
+            </Link>
           </div>
 
-          {/* Table List render */}
-          <TransactionList />
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-10 text-app-text-secondary gap-2">
+              <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : recentTransactions.length === 0 ? (
+            <div className="text-center py-8 text-app-text-secondary text-xs font-semibold">
+              {t('empty_transactions') || 'No transactions recorded yet.'}
+            </div>
+          ) : (
+            <div className="divide-y divide-app-border">
+              {recentTransactions.map((tx) => {
+                const DynamicIcon = IconMap[tx.categories?.icon] || HelpCircle
+                const isExpense = tx.type === 'expense'
+
+                return (
+                  <div key={tx.id} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 gap-3">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div
+                        className="p-2.5 rounded-xl shrink-0 flex items-center justify-center"
+                        style={{
+                          backgroundColor: `${tx.categories?.color || '#6B7280'}15`,
+                          color: tx.categories?.color || '#6B7280',
+                        }}
+                      >
+                        <DynamicIcon size={16} />
+                      </div>
+                      <div className="min-w-0 text-left">
+                        <p className="text-xs font-bold text-app-text-primary truncate">
+                          {tx.description}
+                        </p>
+                        <p className="text-[10px] text-app-text-secondary font-semibold mt-0.5">
+                          {formatDate(tx.date)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <span
+                      className={`text-xs font-extrabold ${
+                        isExpense ? 'text-rose-500' : 'text-emerald-400'
+                      }`}
+                    >
+                      {isExpense ? '-' : '+'}{formatRupiah(tx.amount)}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
-      </section>
 
-      {/* ADD TRANSACTION MODAL FORM */}
-      <TransactionForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
+        {/* B. Mini Analytics Call-To-Action Card */}
+        <div className="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-4">
+          <div>
+            <div className="p-3 bg-purple-600/10 text-purple-400 rounded-xl border border-purple-500/20 w-fit">
+              <TrendingUp size={20} />
+            </div>
+            <h3 className="text-sm font-extrabold text-app-text-primary mt-4">
+              {t('daily_spending') || 'Analytics Insights'}
+            </h3>
+            <p className="text-xs text-app-text-secondary mt-1.5 font-semibold">
+              View beautiful graphs representing your daily spending trend and category expense ratios this month.
+            </p>
+          </div>
 
-      {/* FOOTER ACCENT BRAND */}
-      <footer className="mt-8 text-center text-[10px] text-app-text-secondary font-semibold tracking-wider flex items-center justify-center gap-1">
-        <span>{t('footer_brand')}</span>
-        <Heart size={10} className="text-rose-500 animate-pulse" />
-        <span>{t('footer_sub')}</span>
-      </footer>
+          <Link
+            to="/analytics"
+            className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs tracking-wider rounded-xl transition-all shadow-md hover:cursor-pointer"
+          >
+            <span>{t('view_analytics') || 'VIEW DETAILED CHARTS'}</span>
+            <ChevronRight size={14} />
+          </Link>
+        </div>
+
+      </div>
 
     </div>
   )

@@ -10,6 +10,11 @@ const translations = {
     kos_wallet: "Kos Wallet",
     student: "Anak Kos",
     sign_out: "KELUAR",
+    dashboard: "Dasbor",
+    transactions: "Transaksi",
+    analytics: "Analisis",
+    budget: "Anggaran",
+    settings: "Pengaturan",
     footer_brand: "KOS WALLET © 2026. DIBUAT DENGAN",
     footer_sub: "UNTUK MAHASISWA DI KOS-KOSAN.",
     
@@ -127,6 +132,11 @@ const translations = {
     kos_wallet: "Kos Wallet",
     student: "Student",
     sign_out: "SIGN OUT",
+    dashboard: "Dashboard",
+    transactions: "Transactions",
+    analytics: "Analytics",
+    budget: "Budget",
+    settings: "Settings",
     footer_brand: "KOS WALLET © 2026. CREATED WITH",
     footer_sub: "FOR CAMPUS STUDENTS LIVING IN BOARDING HOUSES.",
     
