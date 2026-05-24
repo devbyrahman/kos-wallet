@@ -38,7 +38,7 @@ const IconMap = {
 
 export default function TransactionList() {
   const { transactions, categories, deleteTransaction, loading } = useTransactions()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const { profile } = useAuth()
 
   const [monthFilter, setMonthFilter] = useState(getMonthKey()) // Default: Current Month
@@ -48,9 +48,13 @@ export default function TransactionList() {
   const [exporting, setExporting] = useState(false)
 
   const handleExportPDF = async () => {
+    console.log('PDF EXPORT UI: Export PDF button clicked.');
     setExporting(true)
     try {
+      console.log('PDF EXPORT UI: Dynamically importing pdfGenerator.js...');
       const { generateMonthlyPDF } = await import('../utils/pdfGenerator')
+      console.log('PDF EXPORT UI: pdfGenerator.js loaded! Executing PDF generator...');
+      
       await generateMonthlyPDF({
         profile,
         transactions: filteredTransactions,
@@ -59,9 +63,15 @@ export default function TransactionList() {
         t,
         allTransactions: transactions
       })
+      console.log('PDF EXPORT UI: PDF generation succeeded and download triggered.');
     } catch (err) {
-      console.error('Failed to export PDF:', err)
+      console.error('PDF EXPORT UI ERROR: Silent catch bypassed. Failed to export PDF!', err)
+      const errorMsg = language === 'id'
+        ? `Gagal mengekspor laporan PDF: ${err.message}`
+        : `Failed to export PDF report: ${err.message}`
+      alert(errorMsg)
     } finally {
+      console.log('PDF EXPORT UI: Resetting exporting state to false.');
       setExporting(false)
     }
   }

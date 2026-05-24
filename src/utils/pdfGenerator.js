@@ -35,19 +35,25 @@ const getDaysInMonth = (monthKey) => {
  * Compile and trigger PDF download
  */
 export const generateMonthlyPDF = async ({ profile, transactions, categories, monthFilter, t, allTransactions }) => {
+  console.log('PDF EXPORT ENGINE: Started generation process...');
   
   // 1. DYNAMIC LAZY IMPORTS - Keeps main JS bundle tiny!
+  console.log('PDF EXPORT ENGINE: Loading jsPDF and jspdf-autotable dynamically...');
   const { jsPDF } = await import('jspdf')
-  await import('jspdf-autotable') // Automatically extends jsPDF prototype
+  const autoTable = (await import('jspdf-autotable')).default
+  console.log('PDF EXPORT ENGINE: Dynamic imports resolved successfully!');
 
   // Filter transactions for the selected month to perform aggregates
+  console.log('PDF EXPORT ENGINE: Preparing transactions data for calculations...');
   const monthTransactions = transactions.filter(tx => !monthFilter || tx.month_key === monthFilter)
   
   const currentIncome = calculateTotalIncome(monthTransactions)
   const currentExpenses = calculateTotalExpenses(monthTransactions)
   const currentBalance = calculateRemainingBalance(monthTransactions)
+  console.log(`PDF EXPORT ENGINE: Data aggregates prepared - Income: ${currentIncome}, Expenses: ${currentExpenses}, Balance: ${currentBalance}`);
 
   // 2. FINANCIAL INSIGHTS MATH ENGINE
+  console.log('PDF EXPORT ENGINE: Generating financial metrics and budget alert insights...');
   // A. Largest Category
   const breakdown = calculateExpensesByCategory(monthTransactions)
   let largestCategoryName = '-'
@@ -118,8 +124,10 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
   } else {
     budgetStatusText = `${overBudgetCount} ${t('budget_status_over') || 'Over Limit'}`
   }
+  console.log('PDF EXPORT ENGINE: Insights calculation finished successfully.');
 
   // 3. CANVAS LAYOUT GENERATOR (Clean light theme)
+  console.log('PDF EXPORT ENGINE: Constructing PDF canvas and drawing branding items...');
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -175,6 +183,7 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
   doc.line(marginX, currentY, 195, currentY)
 
   // B. FINANCIAL SUMMARY CARD BLOCKS
+  console.log('PDF EXPORT ENGINE: Drawing summaries card boxes...');
   currentY += 6
   const drawSummaryCard = (x, title, value, valColorRGB) => {
     // Shaded boundary rectangle
@@ -201,6 +210,7 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
   drawSummaryCard(139, t('balance') || 'Balance', formatRupiah(currentBalance), [139, 92, 246]) // purple
 
   // C. FINANCIAL INSIGHTS PANEL BLOCK
+  console.log('PDF EXPORT ENGINE: Rendering insights panel card...');
   currentY += 24
   doc.setFillColor(248, 250, 252) // slate-50
   doc.setDrawColor(226, 232, 240) // slate-200
@@ -240,6 +250,7 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
   doc.text(budgetStatusText, marginX + 144, currentY + 19)
 
   // D. CATEGORY BREAKDOWN TABLE
+  console.log('PDF EXPORT ENGINE: Initializing Category Breakdown autoTable render...');
   const breakdownRows = breakdown.map(item => {
     const percentage = currentExpenses > 0 ? ((item.value / currentExpenses) * 100).toFixed(1) : '0'
     return [
@@ -255,7 +266,8 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
   doc.setTextColor(15, 23, 42)
   doc.text(t('category_dist') || 'Expenses Category Breakdown', marginX, currentY)
 
-  doc.autoTable({
+  // DIRECT ESM FUNCTION INVOCATION - Prevents runtime Prototype errors!
+  autoTable(doc, {
     startY: currentY + 4,
     head: [[
       t('category') || 'Category',
@@ -279,8 +291,10 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
       fillColor: [248, 250, 252]
     }
   })
+  console.log('PDF EXPORT ENGINE: Category Breakdown autoTable rendered successfully.');
 
   // E. DETAILED TRANSACTION LEDGER
+  console.log('PDF EXPORT ENGINE: Initializing Ledger transaction autoTable render...');
   currentY = doc.lastAutoTable.finalY + 10
   
   // Shift to page 2 if space is low to prevent page overflow layout collision
@@ -307,7 +321,8 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
     ]
   })
 
-  doc.autoTable({
+  // DIRECT ESM FUNCTION INVOCATION - Prevents runtime Prototype errors!
+  autoTable(doc, {
     startY: currentY + 4,
     head: [[
       t('date') || 'Date',
@@ -348,8 +363,10 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
       }
     }
   })
+  console.log('PDF EXPORT ENGINE: Ledger transaction autoTable rendered successfully.');
 
   // F. DYNAMIC FOOTER PAGINATION LOOP
+  console.log('PDF EXPORT ENGINE: Adding dynamic paginated footer tags...');
   const totalPages = doc.internal.getNumberOfPages()
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i)
@@ -367,6 +384,8 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
   }
 
   // Trigger file download in browser
+  console.log('PDF EXPORT ENGINE: Saving document and triggering file download...');
   const fileMonthStr = monthFilter ? `_${monthFilter}` : '_All'
   doc.save(`Kos_Wallet_Report${fileMonthStr}.pdf`)
+  console.log('PDF EXPORT ENGINE: Document saved successfully! Download triggered.');
 }
