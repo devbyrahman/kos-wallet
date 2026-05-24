@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useTransactions } from '../hooks/useTransactions'
 import { useLanguage } from '../hooks/useLanguage'
+import { useAuth } from '../hooks/useAuth'
 import { formatRupiah, formatDate, getMonthKey } from '../utils/formatters'
 import { 
   Trash2, 
@@ -18,7 +19,8 @@ import {
   Flame, 
   PiggyBank, 
   Wallet, 
-  PlusCircle 
+  PlusCircle,
+  FileText
 } from 'lucide-react'
 
 // Simple map to render Lucide Icons dynamically from database strings
@@ -37,11 +39,32 @@ const IconMap = {
 export default function TransactionList() {
   const { transactions, categories, deleteTransaction, loading } = useTransactions()
   const { t } = useLanguage()
+  const { profile } = useAuth()
 
   const [monthFilter, setMonthFilter] = useState(getMonthKey()) // Default: Current Month
   const [categoryFilter, setCategoryFilter] = useState('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [deleteConfirmId, setDeleteConfirmId] = useState(null)
+  const [exporting, setExporting] = useState(false)
+
+  const handleExportPDF = async () => {
+    setExporting(true)
+    try {
+      const { generateMonthlyPDF } = await import('../utils/pdfGenerator')
+      await generateMonthlyPDF({
+        profile,
+        transactions: filteredTransactions,
+        categories,
+        monthFilter,
+        t,
+        allTransactions: transactions
+      })
+    } catch (err) {
+      console.error('Failed to export PDF:', err)
+    } finally {
+      setExporting(false)
+    }
+  }
 
   const handleDelete = async (id) => {
     const { success } = await deleteTransaction(id)
@@ -91,19 +114,41 @@ export default function TransactionList() {
             <Filter size={18} className="text-purple-400" />
             <span>{t('filter_transactions') || 'Filter Transactions'}</span>
           </h3>
-          {(monthFilter !== getMonthKey() || categoryFilter !== 'ALL' || searchQuery !== '') && (
+          <div className="flex items-center gap-4 shrink-0">
+            {/* Export Report PDF Button */}
             <button
-              onClick={() => {
-                setMonthFilter(getMonthKey())
-                setCategoryFilter('ALL')
-                setSearchQuery('')
-              }}
-              className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 hover:cursor-pointer transition-colors"
+              onClick={handleExportPDF}
+              disabled={exporting || filteredTransactions.length === 0}
+              className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1.5 hover:cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              title="Export Report PDF / Ekspor Laporan PDF"
             >
-              <X size={14} />
-              <span>{t('reset_filters') || 'Reset Filters'}</span>
+              {exporting ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span>{t('processing') || 'Processing...'}</span>
+                </>
+              ) : (
+                <>
+                  <FileText size={14} />
+                  <span>{t('export_pdf') || 'Export PDF'}</span>
+                </>
+              )}
             </button>
-          )}
+
+            {(monthFilter !== getMonthKey() || categoryFilter !== 'ALL' || searchQuery !== '') && (
+              <button
+                onClick={() => {
+                  setMonthFilter(getMonthKey())
+                  setCategoryFilter('ALL')
+                  setSearchQuery('')
+                }}
+                className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 hover:cursor-pointer transition-colors shrink-0"
+              >
+                <X size={14} />
+                <span>{t('reset_filters') || 'Reset Filters'}</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Filters Select Grid */}

@@ -20,6 +20,9 @@ export default defineConfig({
             if (id.includes('recharts')) {
               return 'recharts'
             }
+            if (id.includes('jspdf') || id.includes('jspdf-autotable')) {
+              return 'pdf'
+            }
             if (id.includes('lucide-react')) {
               return 'lucide'
             }
