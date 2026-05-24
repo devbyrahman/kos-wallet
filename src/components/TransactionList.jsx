@@ -3,6 +3,7 @@ import { useTransactions } from '../hooks/useTransactions'
 import { useLanguage } from '../hooks/useLanguage'
 import { useAuth } from '../hooks/useAuth'
 import { formatRupiah, formatDate, getMonthKey } from '../utils/formatters'
+import { sortTransactionsChronologically } from '../utils/calculations'
 import { 
   Trash2, 
   Filter, 
@@ -101,16 +102,18 @@ export default function TransactionList() {
 
   // Perform highly robust in-memory client-side filtering!
   // This is ultra-fast, allows real-time text searching, and completely avoids disrupting total balance metrics!
-  const filteredTransactions = transactions.filter((tx) => {
-    const matchMonth = !monthFilter || tx.month_key === monthFilter
-    const matchCategory = categoryFilter === 'ALL' || tx.category_id === categoryFilter
-    
-    const matchSearch = !searchQuery || 
-      tx.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (tx.notes && tx.notes.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredTransactions = sortTransactionsChronologically(
+    transactions.filter((tx) => {
+      const matchMonth = !monthFilter || tx.month_key === monthFilter
+      const matchCategory = categoryFilter === 'ALL' || tx.category_id === categoryFilter
+      
+      const matchSearch = !searchQuery || 
+        tx.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (tx.notes && tx.notes.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    return matchMonth && matchCategory && matchSearch
-  })
+      return matchMonth && matchCategory && matchSearch
+    })
+  )
 
   return (
     <div className="flex flex-col gap-4 text-left select-none">

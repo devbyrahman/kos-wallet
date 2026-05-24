@@ -186,3 +186,29 @@ export const calculateDailySpendingTrend = (transactions) => {
       Amount: item.Amount,
     }))
 }
+
+/**
+ * Deterministically sort transactions in chronological descending order (latest -> oldest)
+ * Prioritizes newest date, and breaks ties using newest Supabase created_at creation timestamps.
+ * Utilizes immutable shallow copy patterns to prevent side effects on global states.
+ * 
+ * @param {Array} txList Unsorted transactions
+ * @returns {Array} Deterministically sorted transactions
+ */
+export const sortTransactionsChronologically = (txList) => {
+  if (!Array.isArray(txList)) return []
+  
+  return [...txList].sort((a, b) => {
+    const dateA = a.date ? new Date(a.date).getTime() : 0
+    const dateB = b.date ? new Date(b.date).getTime() : 0
+    
+    if (dateA !== dateB) {
+      return dateB - dateA
+    }
+    
+    const timeA = a.created_at ? new Date(a.created_at).getTime() : 0
+    const timeB = b.created_at ? new Date(b.created_at).getTime() : 0
+    
+    return timeB - timeA
+  })
+}

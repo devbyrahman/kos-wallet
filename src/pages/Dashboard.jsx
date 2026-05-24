@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useTransactions } from '../hooks/useTransactions'
 import { useLanguage } from '../hooks/useLanguage'
-import { calculateTotalIncome, calculateTotalExpenses, calculateRemainingBalance, getKosWalletStatus } from '../utils/calculations'
+import { calculateTotalIncome, calculateTotalExpenses, calculateRemainingBalance, getKosWalletStatus, sortTransactionsChronologically } from '../utils/calculations'
 import { formatRupiah, formatDate } from '../utils/formatters'
 import { 
   ArrowUpCircle, 
@@ -52,8 +52,9 @@ export default function Dashboard() {
   // 3. Calculate budget consumption percentage for the progress indicator
   const expensePercentage = totalIncome > 0 ? Math.min((totalExpenses / totalIncome) * 100, 100) : 0
 
-  // 4. Fetch the 5 most recent transactions for preview
-  const recentTransactions = transactions.slice(0, 5)
+  // 4. Fetch the 5 most recent transactions for preview sorted deterministically
+  const sortedTransactions = sortTransactionsChronologically(transactions)
+  const recentTransactions = sortedTransactions.slice(0, 5)
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6 text-left">
