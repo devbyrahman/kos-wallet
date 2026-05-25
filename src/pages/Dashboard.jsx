@@ -20,20 +20,29 @@ import {
   Gamepad2, 
   Flame, 
   PiggyBank, 
-  PlusCircle
+  PlusCircle,
+  Heart,
+  User,
+  Briefcase,
+  Sparkles
 } from 'lucide-react'
 
 // Simple map to render Lucide Icons dynamically from database strings
 const IconMap = {
-  Utensils: Utensils,
-  Car: Car,
-  BookOpen: BookOpen,
-  Wifi: Wifi,
-  Gamepad2: Gamepad2,
-  Flame: Flame,
-  PiggyBank: PiggyBank,
-  Wallet: Wallet,
-  PlusCircle: PlusCircle
+  Utensils,
+  Car,
+  BookOpen,
+  Wifi,
+  Gamepad2,
+  Flame,
+  PiggyBank,
+  Wallet,
+  PlusCircle,
+  Heart,
+  User,
+  Briefcase,
+  Sparkles,
+  HelpCircle
 }
 
 export default function Dashboard() {

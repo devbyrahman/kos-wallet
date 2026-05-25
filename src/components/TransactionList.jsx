@@ -21,21 +21,31 @@ import {
   PiggyBank, 
   Wallet, 
   PlusCircle,
+  Heart,
+  User,
+  Briefcase,
+  Sparkles,
   FileText
 } from 'lucide-react'
 
 // Simple map to render Lucide Icons dynamically from database strings
 const IconMap = {
-  Utensils: Utensils,
-  Car: Car,
-  BookOpen: BookOpen,
-  Wifi: Wifi,
-  Gamepad2: Gamepad2,
-  Flame: Flame,
-  PiggyBank: PiggyBank,
-  Wallet: Wallet,
-  PlusCircle: PlusCircle
+  Utensils,
+  Car,
+  BookOpen,
+  Wifi,
+  Gamepad2,
+  Flame,
+  PiggyBank,
+  Wallet,
+  PlusCircle,
+  Heart,
+  User,
+  Briefcase,
+  Sparkles,
+  HelpCircle
 }
+
 
 export default function TransactionList() {
   const { transactions, categories, deleteTransaction, loading } = useTransactions()
@@ -292,7 +302,13 @@ export default function TransactionList() {
                         {tx.description}
                       </h4>
                       <div className="flex items-center gap-2 mt-0.5 text-xs text-app-text-secondary font-medium">
-                        <span>{tx.categories?.name ? t(tx.categories.name) : t('uncategorized')}</span>
+                        {tx.categories?.name === 'Kategori Lama' ? (
+                          <span className="py-0.5 px-2 bg-rose-500/10 text-rose-500 dark:text-rose-400 rounded-full text-[9px] font-extrabold border border-rose-500/20 uppercase tracking-wider select-none shrink-0 leading-none">
+                            {t('Kategori Lama')}
+                          </span>
+                        ) : (
+                          <span>{tx.categories?.name ? t(tx.categories.name) : t('uncategorized')}</span>
+                        )}
                         <span className="text-app-text-secondary/40 font-bold">•</span>
                         <span>{formatDate(tx.date)}</span>
                       </div>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useTransactions } from '../hooks/useTransactions'
+import { useCategories } from '../hooks/useCategories'
 import { useLanguage } from '../hooks/useLanguage'
 import { formatRupiah, getMonthKey } from '../utils/formatters'
+import CategoryManagementModal from '../components/CategoryManagementModal'
 import { 
   Target, 
   Sparkles, 
@@ -13,6 +15,11 @@ import {
   Gamepad2, 
   Flame, 
   PiggyBank, 
+  Wallet,
+  PlusCircle,
+  Heart,
+  User,
+  Briefcase,
   Edit3, 
   Check, 
   X,
@@ -21,45 +28,33 @@ import {
 
 // Simple map to render Lucide Icons dynamically from database strings
 const IconMap = {
-  Utensils: Utensils,
-  Car: Car,
-  BookOpen: BookOpen,
-  Wifi: Wifi,
-  Gamepad2: Gamepad2,
-  Flame: Flame,
-  PiggyBank: PiggyBank
+  Utensils,
+  Car,
+  BookOpen,
+  Wifi,
+  Gamepad2,
+  Flame,
+  PiggyBank,
+  Wallet,
+  PlusCircle,
+  Heart,
+  User,
+  Briefcase,
+  Sparkles
 }
 
 export default function Budget() {
-  const { transactions, categories } = useTransactions()
+  const { transactions } = useTransactions()
+  const { categories, saveBudgetLimit } = useCategories()
   const { t } = useLanguage()
-
-  // 1. Initialise budgets state from local storage with student fallbacks
-  const [budgets, setBudgets] = useState(() => {
-    const saved = localStorage.getItem('kos_wallet_category_budgets')
-    return saved ? JSON.parse(saved) : {
-      'Food': 600000,
-      'Transportation': 200000,
-      'College Needs': 400000,
-      'Internet': 150000,
-      'Entertainment': 250000,
-      'Emergency': 500000,
-      'Others': 150000
-    }
-  })
+  const [isManageOpen, setIsManageOpen] = useState(false)
 
   // State to manage inline editing card per category
   const [editingCatId, setEditingCatId] = useState(null)
   const [editLimitValue, setEditLimitValue] = useState('')
 
-  // Write budgets change to localStorage
-  const saveBudgetLimit = (categoryName, limitAmount) => {
-    const updated = {
-      ...budgets,
-      [categoryName]: Number(limitAmount) || 0
-    }
-    setBudgets(updated)
-    localStorage.setItem('kos_wallet_category_budgets', JSON.stringify(updated))
+  const handleSaveBudget = (categoryName, limitAmount) => {
+    saveBudgetLimit(categoryName, limitAmount)
     setEditingCatId(null)
   }
 
@@ -92,8 +87,16 @@ export default function Budget() {
             Set spending thresholds for each expense category to stay within your monthly allowance.
           </p>
         </div>
-        <div className="text-[10px] sm:text-xs font-bold text-purple-400 bg-purple-500/10 border border-purple-500/20 py-2 px-3.5 rounded-xl shrink-0">
-          Month: {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
+        <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
+          <button
+            onClick={() => setIsManageOpen(true)}
+            className="text-[10px] sm:text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 py-2 px-3.5 rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer shrink-0"
+          >
+            {t('manage_categories') || 'Manage Categories'}
+          </button>
+          <div className="text-[10px] sm:text-xs font-bold text-purple-400 bg-purple-500/10 border border-purple-500/20 py-2 px-3.5 rounded-xl shrink-0">
+            Month: {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
+          </div>
         </div>
       </div>
 
@@ -109,7 +112,7 @@ export default function Budget() {
             expenseCategories.map(cat => {
               const DynamicIcon = IconMap[cat.icon] || HelpCircle
               const spent = categoryExpenses[cat.name] || 0
-              const limit = budgets[cat.name] !== undefined ? budgets[cat.name] : 0
+              const limit = cat.budget || 0
               
               const percentage = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0
               const isOver = spent > limit && limit > 0
@@ -159,7 +162,7 @@ export default function Budget() {
                           {t(cat.name)}
                         </h4>
                         <p className="text-[10px] text-app-text-secondary font-semibold mt-0.5">
-                          {formatRupiah(spent)} spent of {limit > 0 ? formatRupiah(limit) : 'unlimited'}
+                          {formatRupiah(spent)} spent of {limit > 0 ? formatRupiah(limit) : 'Rp 0'}
                         </p>
                       </div>
                     </div>
@@ -200,7 +203,7 @@ export default function Budget() {
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 self-end">
                         <button
-                          onClick={() => saveBudgetLimit(cat.name, editLimitValue)}
+                          onClick={() => handleSaveBudget(cat.name, editLimitValue)}
                           className="p-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors cursor-pointer"
                         >
                           <Check size={14} />
@@ -278,6 +281,8 @@ export default function Budget() {
         </div>
 
       </div>
+
+      <CategoryManagementModal isOpen={isManageOpen} onClose={() => setIsManageOpen(false)} />
 
     </div>
   )

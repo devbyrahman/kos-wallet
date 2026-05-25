@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
 import { supabase } from '../services/supabase'
+import CategoryManagementModal from '../components/CategoryManagementModal'
 import { 
   Settings as SettingsIcon, 
   User, 
@@ -16,6 +17,7 @@ import {
 export default function Settings() {
   const { user, profile, refreshProfile, signOut, authLoading } = useAuth()
   const { t, language, setLanguage } = useLanguage()
+  const [isManageOpen, setIsManageOpen] = useState(false)
 
   const [fullName, setFullName] = useState(profile?.full_name || '')
   const [updating, setUpdating] = useState(false)
@@ -238,6 +240,26 @@ export default function Settings() {
             </button>
           </div>
 
+          {/* Manage Categories row */}
+          <div className="flex items-center justify-between gap-4 py-2 border-b border-app-border/20 last:border-b-0 animate-fade-in">
+            <div className="text-left">
+              <h4 className="text-xs font-bold text-app-text-primary">
+                {language === 'id' ? 'Kelola Kategori Keuangan' : 'Manage Financial Categories'}
+              </h4>
+              <p className="text-[10px] text-app-text-secondary font-semibold mt-0.5">
+                Add, customize icons & colors, or delete transaction categories permanently.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setIsManageOpen(true)}
+              className="px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition-colors hover:cursor-pointer flex items-center gap-1.5 shadow-sm text-xs font-bold shrink-0"
+              title="Manage Categories"
+            >
+              <span>{t('manage_categories') || 'Manage Categories'}</span>
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -261,6 +283,8 @@ export default function Settings() {
           <span>{t('sign_out') || 'SIGN OUT'}</span>
         </button>
       </div>
+
+      <CategoryManagementModal isOpen={isManageOpen} onClose={() => setIsManageOpen(false)} />
 
     </div>
   )
