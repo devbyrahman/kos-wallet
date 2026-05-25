@@ -209,7 +209,7 @@ export default function TransactionForm({ isOpen, onClose }) {
                 </label>
                 <input
                   type="text"
-                  placeholder={type === 'expense' ? t('description_ph') : 'e.g. Allowance from Parents'}
+                  placeholder={type === 'expense' ? t('description_ph') : t('income_desc_ph')}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   disabled={loading}

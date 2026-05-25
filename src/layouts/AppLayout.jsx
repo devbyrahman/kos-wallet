@@ -66,17 +66,17 @@ export default function AppLayout() {
   const isActive = (path) => location.pathname === path
 
   const menuItems = [
-    { path: '/dashboard', label: t('dashboard') || 'Dashboard', icon: LayoutDashboard },
-    { path: '/transactions', label: t('transactions') || 'Transactions', icon: Receipt },
-    { path: '/analytics', label: t('analytics') || 'Analytics', icon: TrendingUp },
-    { path: '/budget', label: t('budget') || 'Budget', icon: Target },
-    { path: '/settings', label: t('settings') || 'Settings', icon: SettingsIcon },
+    { path: '/dashboard', label: t('dashboard'), icon: LayoutDashboard },
+    { path: '/transactions', label: t('transactions'), icon: Receipt },
+    { path: '/analytics', label: t('analytics'), icon: TrendingUp },
+    { path: '/budget', label: t('budget'), icon: Target },
+    { path: '/settings', label: t('settings'), icon: SettingsIcon },
   ]
 
   // Translate page headers dynamically
   const getPageTitle = () => {
     const activeItem = menuItems.find(item => item.path === location.pathname)
-    return activeItem ? activeItem.label : 'Kos Wallet'
+    return activeItem ? activeItem.label : t('kos_wallet')
   }
 
   return (
@@ -155,10 +155,10 @@ export default function AppLayout() {
             {!isSidebarCollapsed && (
               <div className="min-w-0 flex-1 text-left">
                 <p className="text-xs font-bold text-app-text-primary truncate">
-                  {profile?.full_name || 'Student'}
+                  {profile?.full_name || t('student')}
                 </p>
                 <p className="text-[10px] font-semibold text-app-text-secondary truncate">
-                  {t('student') || 'Anak Kos'}
+                  {t('student')}
                 </p>
               </div>
             )}
@@ -181,7 +181,7 @@ export default function AppLayout() {
               className="w-full flex items-center justify-center gap-2 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 hover:cursor-pointer"
             >
               <LogOut size={14} />
-              <span>{t('sign_out') || 'SIGN OUT'}</span>
+              <span>{t('sign_out')}</span>
             </button>
           )}
         </div>
@@ -287,10 +287,10 @@ export default function AppLayout() {
               </div>
               <div className="min-w-0 text-left">
                 <p className="text-xs font-bold text-app-text-primary truncate">
-                  {profile?.full_name || 'Student'}
+                  {profile?.full_name || t('student')}
                 </p>
                 <p className="text-[10px] font-semibold text-app-text-secondary truncate">
-                  {t('student') || 'Anak Kos'}
+                  {t('student')}
                 </p>
               </div>
             </div>
@@ -328,7 +328,7 @@ export default function AppLayout() {
                 className="w-full flex items-center justify-center gap-2 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs tracking-wider rounded-xl transition-all shadow-md cursor-pointer"
               >
                 <LogOut size={14} />
-                <span>{t('sign_out') || 'SIGN OUT'}</span>
+                <span>{t('sign_out')}</span>
               </button>
             </div>
           </div>

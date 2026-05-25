@@ -72,14 +72,13 @@ export default function TransactionList() {
         categories,
         monthFilter,
         t,
-        allTransactions: transactions
+        allTransactions: transactions,
+        language
       })
       console.log('PDF EXPORT UI: PDF generation succeeded and download triggered.');
     } catch (err) {
       console.error('PDF EXPORT UI ERROR: Silent catch bypassed. Failed to export PDF!', err)
-      const errorMsg = language === 'id'
-        ? `Gagal mengekspor laporan PDF: ${err.message}`
-        : `Failed to export PDF report: ${err.message}`
+      const errorMsg = t('err_pdf_failed', { error: err.message })
       alert(errorMsg)
     } finally {
       console.log('PDF EXPORT UI: Resetting exporting state to false.');
@@ -101,7 +100,7 @@ export default function TransactionList() {
     for (let i = 0; i < 6; i++) {
       const year = date.getFullYear()
       const month = String(date.getMonth() + 1).padStart(2, '0')
-      const label = date.toLocaleString('en-US', { month: 'long', year: 'numeric' })
+      const label = date.toLocaleString(language === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' })
       months.push({ value: `${year}-${month}`, label })
       date.setMonth(date.getMonth() - 1)
     }
@@ -225,7 +224,7 @@ export default function TransactionList() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('description_ph') || 'Search description, notes...'}
+              placeholder={t('search_ph')}
               className="w-full pl-10 pr-4 py-2.5 bg-app-bg-input text-app-text-primary border border-app-border focus:border-purple-500 outline-none rounded-xl text-xs font-semibold placeholder:text-app-text-secondary/50 transition-all"
             />
           </div>

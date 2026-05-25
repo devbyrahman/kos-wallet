@@ -30,10 +30,10 @@ export default function Analytics() {
       {/* HEADER SECTION */}
       <div className="bg-app-card-bg/40 backdrop-blur-xl border border-app-border p-4 sm:p-5 rounded-2xl">
         <h2 className="text-base sm:text-lg font-bold text-app-text-primary">
-          {t('category_dist') || 'Financial Analytics'}
+          {t('financial_analytics')}
         </h2>
         <p className="text-xs text-app-text-secondary mt-0.5">
-          Visualize your financial cashflow categories ratio and daily money outflows chronologically.
+          {t('analytics_desc')}
         </p>
       </div>
 

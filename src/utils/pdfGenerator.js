@@ -34,7 +34,7 @@ const getDaysInMonth = (monthKey) => {
 /**
  * Compile and trigger PDF download
  */
-export const generateMonthlyPDF = async ({ profile, transactions, categories, monthFilter, t, allTransactions }) => {
+export const generateMonthlyPDF = async ({ profile, transactions, categories, monthFilter, t, allTransactions, language }) => {
   console.log('PDF EXPORT ENGINE: Started generation process...');
   
   // 1. DYNAMIC LAZY IMPORTS - Keeps main JS bundle tiny!
@@ -168,13 +168,13 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
   
   // Dynamic Month Label
   const displayMonth = monthFilter 
-    ? new Date(monthFilter + '-02').toLocaleString('en-US', { month: 'long', year: 'numeric' })
-    : t('filter_month') || 'All Months'
-  doc.text(`${t('period') || 'Period'}: ${displayMonth}`, marginX, currentY + 4)
+    ? new Date(monthFilter + '-02').toLocaleString(language === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' })
+    : t('filter_month')
+  doc.text(`${t('period')}: ${displayMonth}`, marginX, currentY + 4)
   
   // Timestamp
-  const formattedTimestamp = new Date().toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-  doc.text(`${t('generated_on') || 'Generated'}: ${formattedTimestamp}`, 195, currentY, { align: 'right' })
+  const formattedTimestamp = new Date().toLocaleString(language === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  doc.text(`${t('generated_on')}: ${formattedTimestamp}`, 195, currentY, { align: 'right' })
 
   // Header bottom border line
   currentY += 8
@@ -205,9 +205,9 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
     doc.text(value, x + 4, currentY + 12)
   }
 
-  drawSummaryCard(marginX, t('allowance') || 'Allowance', formatRupiah(currentIncome), [16, 185, 129]) // green
-  drawSummaryCard(77, t('expenses') || 'Expenses', formatRupiah(currentExpenses), [244, 63, 94]) // rose
-  drawSummaryCard(139, t('balance') || 'Balance', formatRupiah(currentBalance), [139, 92, 246]) // purple
+  drawSummaryCard(marginX, t('allowance'), formatRupiah(currentIncome), [16, 185, 129]) // green
+  drawSummaryCard(77, t('expenses'), formatRupiah(currentExpenses), [244, 63, 94]) // rose
+  drawSummaryCard(139, t('balance'), formatRupiah(currentBalance), [139, 92, 246]) // purple
 
   // C. FINANCIAL INSIGHTS PANEL BLOCK
   console.log('PDF EXPORT ENGINE: Rendering insights panel card...');
@@ -270,9 +270,9 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
   autoTable(doc, {
     startY: currentY + 4,
     head: [[
-      t('category') || 'Category',
-      t('amount') || 'Amount',
-      'Ratio (%)'
+      t('category'),
+      t('amount'),
+      t('ratio')
     ]],
     body: breakdownRows,
     margin: { left: marginX, right: marginX },
@@ -306,7 +306,7 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
   doc.setFontSize(9)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(15, 23, 42)
-  doc.text(t('ledger_log') || 'Financial Ledger Table', marginX, currentY)
+  doc.text(t('ledger_log'), marginX, currentY)
 
   // Filter transactions matched with UI's active state
   const ledgerRows = transactions.map(tx => {
@@ -325,11 +325,11 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
   autoTable(doc, {
     startY: currentY + 4,
     head: [[
-      t('date') || 'Date',
-      t('description') || 'Description',
-      t('category') || 'Category',
-      t('type') || 'Type',
-      t('amount') || 'Amount'
+      t('date'),
+      t('description'),
+      t('category'),
+      t('type'),
+      t('amount')
     ]],
     body: ledgerRows,
     margin: { left: marginX, right: marginX, bottom: 20 },
@@ -379,8 +379,8 @@ export const generateMonthlyPDF = async ({ profile, transactions, categories, mo
     doc.setLineWidth(0.3)
     doc.line(marginX, 278, 195, 278)
 
-    doc.text(`Kos Wallet © 2026 | ${t('footer_sub') || 'Anak Kos Monthly Financial Report'}`, marginX, 283)
-    doc.text(`${t('page') || 'Page'} ${i} ${t('of') || 'of'} ${totalPages}`, 195, 283, { align: 'right' })
+    doc.text(`Kos Wallet © 2026 | ${t('footer_sub')}`, marginX, 283)
+    doc.text(`${t('page')} ${i} ${t('of')} ${totalPages}`, 195, 283, { align: 'right' })
   }
 
   // Trigger file download in browser

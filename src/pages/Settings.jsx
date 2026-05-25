@@ -75,7 +75,7 @@ export default function Settings() {
 
       // Refresh global context profile instantly!
       await refreshProfile()
-      setSuccessMsg(language === 'id' ? 'Profil berhasil diperbarui!' : 'Profile updated successfully!')
+      setSuccessMsg(t('profile_updated'))
       
       // Auto clear success message after 3 seconds
       setTimeout(() => setSuccessMsg(''), 3000)
@@ -96,10 +96,10 @@ export default function Settings() {
         </div>
         <div>
           <h2 className="text-base sm:text-lg font-bold text-app-text-primary">
-            {t('settings') || 'Application Settings'}
+            {t('application_settings')}
           </h2>
           <p className="text-xs text-app-text-secondary mt-0.5">
-            Customize your boarder profile details and application preferences.
+            {t('settings_desc')}
           </p>
         </div>
       </div>
@@ -109,7 +109,7 @@ export default function Settings() {
         <div className="flex items-center gap-2 pb-3 border-b border-app-border/40">
           <User className="text-purple-400" size={16} />
           <h3 className="text-sm font-bold text-app-text-primary uppercase tracking-wider">
-            {language === 'id' ? 'Profil Mahasiswa' : 'Student Profile'}
+            {t('student_profile')}
           </h3>
         </div>
 
@@ -148,7 +148,7 @@ export default function Settings() {
           {/* Email Address (Read-only for security) */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-app-text-secondary/50 uppercase tracking-wider block">
-              {t('email_address') || 'Email Address'} ({language === 'id' ? 'Hanya Baca' : 'Read-only'})
+              {t('email_address')} ({t('read_only')})
             </label>
             <input
               type="email"
@@ -169,7 +169,7 @@ export default function Settings() {
             ) : (
               <>
                 <Check size={14} />
-                <span>{language === 'id' ? 'SIMPAN PERUBAHAN' : 'SAVE CHANGES'}</span>
+                <span>{t('save_changes')}</span>
               </>
             )}
           </button>
@@ -182,7 +182,7 @@ export default function Settings() {
         <div className="flex items-center gap-2 pb-3 border-b border-app-border/40">
           <Globe className="text-purple-400" size={16} />
           <h3 className="text-sm font-bold text-app-text-primary uppercase tracking-wider">
-            {language === 'id' ? 'Pengaturan Aplikasi' : 'Preferences'}
+            {t('general_preferences')}
           </h3>
         </div>
 
@@ -192,10 +192,10 @@ export default function Settings() {
           <div className="flex items-center justify-between gap-4 py-2 border-b border-app-border/20 last:border-b-0">
             <div className="text-left">
               <h4 className="text-xs font-bold text-app-text-primary">
-                {language === 'id' ? 'Bahasa Aplikasi' : 'Application Language'}
+                {t('app_language')}
               </h4>
               <p className="text-[10px] text-app-text-secondary font-semibold mt-0.5">
-                Toggle active dictionary translations.
+                {t('app_language_desc')}
               </p>
             </div>
             
@@ -214,10 +214,10 @@ export default function Settings() {
           <div className="flex items-center justify-between gap-4 py-2 border-b border-app-border/20 last:border-b-0">
             <div className="text-left">
               <h4 className="text-xs font-bold text-app-text-primary">
-                {language === 'id' ? 'Tema Tampilan' : 'Interface Theme'}
+                {t('app_theme')}
               </h4>
               <p className="text-[10px] text-app-text-secondary font-semibold mt-0.5">
-                Toggle dark glassmorphism mode or light contrast mode.
+                {t('app_theme_desc')}
               </p>
             </div>
 
@@ -244,10 +244,10 @@ export default function Settings() {
           <div className="flex items-center justify-between gap-4 py-2 border-b border-app-border/20 last:border-b-0 animate-fade-in">
             <div className="text-left">
               <h4 className="text-xs font-bold text-app-text-primary">
-                {language === 'id' ? 'Kelola Kategori Keuangan' : 'Manage Financial Categories'}
+                {t('manage_categories_desc')}
               </h4>
               <p className="text-[10px] text-app-text-secondary font-semibold mt-0.5">
-                Add, customize icons & colors, or delete transaction categories permanently.
+                {t('manage_categories_desc')}
               </p>
             </div>
 
@@ -267,10 +267,10 @@ export default function Settings() {
       <div className="glass-panel border-rose-500/20 bg-rose-500/5 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         <div className="text-left">
           <h4 className="text-xs font-extrabold text-rose-500 dark:text-rose-400">
-            {language === 'id' ? 'Keluar Akun' : 'Sign Out Session'}
+            {t('sign_out_session')}
           </h4>
           <p className="text-[10px] text-app-text-secondary font-semibold mt-0.5">
-            Log out from your student account. All local transaction caches will be cleared safely.
+            {t('sign_out_desc')}
           </p>
         </div>
 

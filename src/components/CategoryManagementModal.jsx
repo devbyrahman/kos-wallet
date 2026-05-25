@@ -107,7 +107,7 @@ export default function CategoryManagementModal({ isOpen, onClose }) {
   const handleDeleteClick = (cat) => {
     // Check if system default category
     if (cat.is_system) {
-      alert(t('default_cat_delete_err') || 'Cannot delete default categories!')
+      alert(t('default_cat_delete_err'))
       return
     }
 
@@ -124,7 +124,7 @@ export default function CategoryManagementModal({ isOpen, onClose }) {
   const executeDelete = async (id) => {
     const result = await deleteCategory(id)
     if (!result.success) {
-      alert(`Error deleting category: ${result.error}`)
+      alert(t('err_delete_category', { error: result.error }))
     }
     setPendingDeleteCat(null)
   }
@@ -170,9 +170,7 @@ export default function CategoryManagementModal({ isOpen, onClose }) {
                 </div>
                 
                 <p className="text-xs text-app-text-secondary leading-relaxed font-semibold mb-6">
-                  {language === 'id' 
-                    ? `Apakah Anda yakin ingin menghapus kategori "${t(pendingDeleteCat.name)}"? Tindakan ini tidak dapat dibatalkan.`
-                    : `Are you sure you want to delete category "${t(pendingDeleteCat.name)}"? This action cannot be undone.`}
+                  {t('delete_category_confirm', { name: t(pendingDeleteCat.name) })}
                 </p>
 
                 <div className="flex gap-3">
@@ -207,7 +205,7 @@ export default function CategoryManagementModal({ isOpen, onClose }) {
                 <span>{t('manage_categories') || 'Manage Categories'}</span>
               </h2>
               <p className="text-[10px] sm:text-xs text-app-text-secondary mt-0.5">
-                Customize income and expense categories saved permanently in Supabase.
+                {t('manage_categories_desc')}
               </p>
             </div>
             <button
@@ -273,7 +271,7 @@ export default function CategoryManagementModal({ isOpen, onClose }) {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Shopping, Cosmetics"
+                  placeholder={t('category_name_ph')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={categoriesLoading}
@@ -357,7 +355,7 @@ export default function CategoryManagementModal({ isOpen, onClose }) {
           {/* RIGHT COLUMN: LIST AND MANAGEMENT */}
           <div className="md:w-1/2 flex flex-col min-h-[300px]">
             <h3 className="text-[10px] font-bold text-app-text-secondary uppercase tracking-wider block text-left mb-2">
-              {tab === 'expense' ? 'Expense Categories List' : 'Income Categories List'}
+              {tab === 'expense' ? t('category_list_expense') : t('category_list_income')}
             </h3>
             
             <div className="flex-1 bg-app-bg-input/40 border border-app-border rounded-2xl overflow-y-auto divide-y divide-app-border p-1 max-h-[340px] scrollbar-thin">
@@ -406,7 +404,7 @@ export default function CategoryManagementModal({ isOpen, onClose }) {
               
               {tabCategories.length === 0 && (
                 <div className="p-8 text-center text-[11px] text-app-text-secondary font-semibold">
-                  No categories found for this tab.
+                  {t('no_categories_tab')}
                 </div>
               )}
             </div>

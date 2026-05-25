@@ -72,17 +72,17 @@ export default function Dashboard() {
       <div className="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-lg sm:text-xl font-extrabold text-app-text-primary tracking-tight">
-            Hi, {profile?.full_name || 'Student'}! 👋
+            {t('welcome_greeting', { name: profile?.full_name || t('student') })}
           </h2>
           <p className="text-xs text-app-text-secondary mt-0.5">
-            {t('auth_welcome_back_desc') || 'Welcome back! Manage your allowance efficiently.'}
+            {t('auth_welcome_back_desc')}
           </p>
         </div>
         <Link
           to="/settings"
           className="text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-0.5 self-start sm:self-auto hover:cursor-pointer"
         >
-          <span>{t('settings') || 'Settings'}</span>
+          <span>{t('settings')}</span>
           <ChevronRight size={14} />
         </Link>
       </div>
@@ -142,11 +142,11 @@ export default function Dashboard() {
             <div className="flex flex-wrap items-center gap-1.5 xs:gap-2">
               <h3 className="text-sm font-bold text-app-text-primary leading-none">{t('wallet_condition')}</h3>
               <span className={`py-1 px-2 rounded-full text-[9px] sm:text-[10px] font-extrabold border uppercase tracking-wider leading-none ${walletStatus.themeColor}`}>
-                {t(`status_${walletStatus.key}_title`) || walletStatus.statusName}
+                {t(`status_${walletStatus.key}_title`)}
               </span>
             </div>
             <p className="text-[11px] text-app-text-secondary mt-1.5 font-semibold">
-              {t(`status_${walletStatus.key}_desc`) || walletStatus.description}
+              {t(`status_${walletStatus.key}_desc`)}
             </p>
           </div>
         </div>
@@ -180,13 +180,13 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-app-text-primary flex items-center gap-2">
               <History size={16} className="text-purple-400" />
-              <span>{t('recent_transactions') || 'Recent Transactions'}</span>
+              <span>{t('recent_transactions')}</span>
             </h3>
             <Link
               to="/transactions"
               className="text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-0.5 hover:cursor-pointer"
             >
-              <span>{t('view_all') || 'View All'}</span>
+              <span>{t('view_all')}</span>
               <ChevronRight size={14} />
             </Link>
           </div>
@@ -197,7 +197,7 @@ export default function Dashboard() {
             </div>
           ) : recentTransactions.length === 0 ? (
             <div className="text-center py-8 text-app-text-secondary text-xs font-semibold">
-              {t('empty_transactions') || 'No transactions recorded yet.'}
+              {t('empty_transactions')}
             </div>
           ) : (
             <div className="divide-y divide-app-border">
@@ -248,10 +248,10 @@ export default function Dashboard() {
               <TrendingUp size={20} />
             </div>
             <h3 className="text-sm font-extrabold text-app-text-primary mt-4">
-              {t('daily_spending') || 'Analytics Insights'}
+              {t('daily_spending')}
             </h3>
             <p className="text-xs text-app-text-secondary mt-1.5 font-semibold">
-              View beautiful graphs representing your daily spending trend and category expense ratios this month.
+              {t('analytics_desc')}
             </p>
           </div>
 
@@ -259,7 +259,7 @@ export default function Dashboard() {
             to="/analytics"
             className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs tracking-wider rounded-xl transition-all shadow-md hover:cursor-pointer"
           >
-            <span>{t('view_analytics') || 'VIEW DETAILED CHARTS'}</span>
+            <span>{t('view_analytics')}</span>
             <ChevronRight size={14} />
           </Link>
         </div>

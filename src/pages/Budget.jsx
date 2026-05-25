@@ -46,7 +46,7 @@ const IconMap = {
 export default function Budget() {
   const { transactions } = useTransactions()
   const { categories, saveBudgetLimit } = useCategories()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [isManageOpen, setIsManageOpen] = useState(false)
 
   // State to manage inline editing card per category
@@ -81,10 +81,10 @@ export default function Budget() {
         <div>
           <h2 className="text-base sm:text-lg font-bold text-app-text-primary flex items-center gap-2">
             <Target className="text-purple-400 shrink-0" size={20} />
-            <span>{t('consumption') || 'Category Budget Limits'}</span>
+            <span>{t('consumption')}</span>
           </h2>
           <p className="text-xs text-app-text-secondary mt-0.5">
-            Set spending thresholds for each expense category to stay within your monthly allowance.
+            {t('budget_desc')}
           </p>
         </div>
         <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
@@ -92,10 +92,10 @@ export default function Budget() {
             onClick={() => setIsManageOpen(true)}
             className="text-[10px] sm:text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 py-2 px-3.5 rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer shrink-0"
           >
-            {t('manage_categories') || 'Manage Categories'}
+            {t('manage_categories')}
           </button>
           <div className="text-[10px] sm:text-xs font-bold text-purple-400 bg-purple-500/10 border border-purple-500/20 py-2 px-3.5 rounded-xl shrink-0">
-            Month: {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
+            {t('budget_period')}: {new Date().toLocaleString(language === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' })}
           </div>
         </div>
       </div>
@@ -106,7 +106,7 @@ export default function Budget() {
         <div className="lg:col-span-2 space-y-4">
           {expenseCategories.length === 0 ? (
             <div className="glass-panel rounded-2xl p-8 text-center text-app-text-secondary text-xs">
-              No categories found.
+              {t('no_categories_tab')}
             </div>
           ) : (
             expenseCategories.map(cat => {
@@ -119,20 +119,20 @@ export default function Budget() {
 
               // Determine health color badge
               let badgeStyle = "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25"
-              let badgeLabel = "Safe"
+              let badgeLabel = t('status_safe')
               let progressColor = "bg-emerald-500"
 
               if (limit === 0) {
                 badgeStyle = "bg-slate-500/10 text-app-text-secondary border border-app-border"
-                badgeLabel = "No Limit Set"
+                badgeLabel = t('status_no_limit')
                 progressColor = "bg-slate-400"
               } else if (spent > limit) {
                 badgeStyle = "bg-rose-500/15 text-rose-400 border border-rose-500/25 animate-pulse font-extrabold"
-                badgeLabel = "Over Limit"
+                badgeLabel = t('status_over_limit')
                 progressColor = "bg-rose-500"
               } else if (percentage >= 75) {
                 badgeStyle = "bg-amber-500/15 text-amber-400 border border-amber-500/25"
-                badgeLabel = "Warning"
+                badgeLabel = t('status_warning')
                 progressColor = "bg-amber-500"
               }
 
@@ -162,7 +162,7 @@ export default function Budget() {
                           {t(cat.name)}
                         </h4>
                         <p className="text-[10px] text-app-text-secondary font-semibold mt-0.5">
-                          {formatRupiah(spent)} spent of {limit > 0 ? formatRupiah(limit) : 'Rp 0'}
+                          {t('spent_of_limit', { spent: formatRupiah(spent), limit: limit > 0 ? formatRupiah(limit) : 'Rp 0' })}
                         </p>
                       </div>
                     </div>
@@ -192,7 +192,7 @@ export default function Budget() {
                   {editingCatId === cat.id && (
                     <div className="p-3 bg-app-bg-input border border-app-border rounded-xl flex items-center justify-between gap-3 animate-fade-in text-left">
                       <div className="min-w-0 flex-1">
-                        <label className="text-[9px] font-bold text-app-text-secondary uppercase tracking-wider">Set Limit Amount (Rp)</label>
+                        <label className="text-[9px] font-bold text-app-text-secondary uppercase tracking-wider">{t('set_limit_amount')}</label>
                         <input
                           type="number"
                           value={editLimitValue}
@@ -228,7 +228,7 @@ export default function Budget() {
                     </div>
                     {limit > 0 && (
                       <div className="flex justify-between text-[9px] font-bold text-app-text-secondary uppercase">
-                        <span>Usage</span>
+                        <span>{t('usage_percentage')}</span>
                         <span>{percentage.toFixed(0)}%</span>
                       </div>
                     )}
@@ -238,7 +238,7 @@ export default function Budget() {
                   {isOver && (
                     <div className="mt-1 p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 text-rose-400 text-[10px] font-semibold text-left">
                       <AlertTriangle size={12} className="shrink-0 text-rose-400" />
-                      <span>Warning: You have exceeded your budget by {formatRupiah(spent - limit)}!</span>
+                      <span>{t('exceeded_budget_by', { diff: formatRupiah(spent - limit) })}</span>
                     </div>
                   )}
 
@@ -257,24 +257,25 @@ export default function Budget() {
 
             <div className="flex items-center gap-2 text-purple-400">
               <Sparkles size={18} />
-              <h3 className="text-sm font-extrabold uppercase tracking-wide">AI Recommendation</h3>
+              <h3 className="text-sm font-extrabold uppercase tracking-wide">{t('ai_recommendation')}</h3>
             </div>
             
             <h4 className="text-sm font-bold text-app-text-primary mt-4 text-left">
-              💡 Smart Budgeting Insights
+              {t('ai_smart_insights')}
             </h4>
             
             <div className="mt-3 space-y-3.5 text-xs text-app-text-secondary font-semibold leading-relaxed text-left">
               <p>
-                “Kamu membelanjakan Rp {(categoryExpenses['Food'] || 0).toLocaleString()} untuk <strong className="text-app-text-primary">Makanan</strong> bulan ini. 
-                Dengan rata-rata belanja Rp 20.000 sekali makan, cobalah membatasi nongkrong di kafe di akhir pekan untuk menyisihkan Rp 100.000 lebih banyak!”
+                {t('ai_insight_content', { spent: formatRupiah(categoryExpenses['Food'] || 0) })}
               </p>
               <div className="p-3 bg-purple-600/10 border border-purple-500/20 rounded-xl">
-                <span className="text-[10px] font-bold text-purple-400 uppercase block mb-1">Target Penghematan</span>
-                <span className="text-sm font-extrabold text-app-text-primary">Rp 150.000 / Bulan</span>
+                <span className="text-[10px] font-bold text-purple-400 uppercase block mb-1">{t('ai_insight_target')}</span>
+                <span className="text-sm font-extrabold text-app-text-primary">
+                  {language === 'id' ? 'Rp 150.000 / Bulan' : 'Rp 150,000 / Month'}
+                </span>
               </div>
               <p className="text-[10px] text-app-text-secondary/70 italic mt-4">
-                Powered by Future Smart AI Finance Advisory Engine module.
+                {t('ai_insight_powered')}
               </p>
             </div>
           </div>

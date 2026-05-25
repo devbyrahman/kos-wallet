@@ -18,7 +18,7 @@ export default function Transactions() {
             {t('ledger_log') || 'Financial Ledger Log'}
           </h2>
           <p className="text-xs text-app-text-secondary mt-0.5">
-            Add, delete, search, and filter your financial cashflow entries dynamically.
+            {t('ledger_log_desc')}
           </p>
         </div>
 
